@@ -2,15 +2,10 @@ import { NextFunction, Request, Response } from 'express';
 import { db } from '../../lib/db';
 import { badRequest, conflict, forbidden, notFound } from '../../lib/http';
 import { parsePublicId, toPublicId } from '../../lib/ids';
-import { assertEmail, assertOptionalString, assertString } from '../../lib/validation';
+//import { assertOptionalString } from '../../lib/validation';
+import { assertEmail, assertOptionalString } from '../../lib/validation';
 
-const PROJECT_NAME_MIN_LENGTH = 3;
-const PROJECT_NAME_MAX_LENGTH = 100;
-const PROJECT_DESCRIPTION_MAX_LENGTH = 500;
-
-function validateProjectName(value: unknown): string {
-  return assertString(value, 'name', PROJECT_NAME_MIN_LENGTH, PROJECT_NAME_MAX_LENGTH);
-}
+//const EMAIL_CHECK = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function serialize(p: {
   id: number;
@@ -33,10 +28,11 @@ function serialize(p: {
 export async function create(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const userId = req.user!.userId;
-    // Antes: if (name.length > 100) { throw badRequest('name must be between 3 and 100 characters'); }
-    // Faltaba validar el minimo de caracteres al crear el proyecto.
-    const name = validateProjectName(req.body?.name);
-    const description = assertOptionalString(req.body?.description, 'description', PROJECT_DESCRIPTION_MAX_LENGTH);
+    const name = typeof req.body?.name === 'string' ? req.body.name.trim() : '';
+    if (name.length > 100) {
+      throw badRequest('name must be between 3 and 100 characters');
+    }
+    const description = assertOptionalString(req.body?.description, 'description', 500);
 
     const duplicate = await db.project.findFirst({ where: { ownerId: userId, name } });
     if (duplicate) throw conflict('You already have a project with that name');
@@ -91,7 +87,10 @@ export async function update(req: Request, res: Response, next: NextFunction): P
     const data: { name?: string; description?: string | null } = {};
 
     if (req.body?.name !== undefined) {
-      const name = validateProjectName(req.body.name);
+      const name = typeof req.body.name === 'string' ? req.body.name.trim() : '';
+      if (name.length < 3 || name.length > 100) {
+        throw badRequest('name must be between 3 and 100 characters');
+      }
       const duplicate = await db.project.findFirst({
         where: { ownerId: userId, name, id: { not: id } },
       });
@@ -100,7 +99,7 @@ export async function update(req: Request, res: Response, next: NextFunction): P
     }
 
     if (req.body?.description !== undefined) {
-      data.description = assertOptionalString(req.body.description, 'description', PROJECT_DESCRIPTION_MAX_LENGTH) ?? null;
+      data.description = assertOptionalString(req.body.description, 'description', 500) ?? null;
     }
 
     res.json(serialize(await db.project.update({ where: { id }, data })));
@@ -142,9 +141,8 @@ export async function addMember(req: Request, res: Response, next: NextFunction)
     if (!project) throw notFound('Project not found');
     if (project.ownerId !== userId) throw forbidden('Only the project owner can manage members');
 
-    // Reemplazado por assertEmail; EMAIL_CHECK ya no es necesario.
-    // if (!EMAIL_CHECK.test(email)) throw badRequest('email must be a valid address');
-    const email = assertEmail(req.body?.email, 'email must be a valid address');
+    const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+    if (assertEmail(req.body?.email)) throw badRequest('email must be a valid address');
 
     const user = await db.user.findUnique({ where: { email } });
     if (!user) throw notFound('No user found with that email');

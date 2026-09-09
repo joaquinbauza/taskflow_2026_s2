@@ -3,16 +3,19 @@ import crypto from 'crypto';
 import { db } from '../../lib/db';
 import { badRequest, conflict, notFound, unauthorized } from '../../lib/http';
 import { toPublicId } from '../../lib/ids';
-import { assertEmail, assertPassword, normalizeEmail } from '../../lib/validation';
+//import { assertPassword, normalizeEmail } from '../../lib/validation';
 import { signToken } from '../../middleware/auth';
+import { assertEmail, assertPassword, normalizeEmail } from '../../lib/validation';
 
-// Validacion anterior: rechazaba direcciones con + aceptadas por assertEmail.
-// const EMAIL_PATTERN = /^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-const PASSWORD_HASH_ROUNDS = 10;
-const MAX_LOGIN_ATTEMPTS = 5;
-const ACCOUNT_LOCK_DURATION_MS = 15 * 60 * 1000;
-const RESET_TOKEN_BYTES = 24;
-const RESET_TOKEN_DURATION_MS = 60 * 60 * 1000;
+/*const EMAIL_PATTERN = /^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+function checkEmail(email: unknown): string {
+  if (typeof email !== 'string' || !EMAIL_PATTERN.test(email.trim())) {
+    throw badRequest('Email must be a valid address');
+  }
+  return normalizeEmail(email);
+}*/
+
 
 export interface PublicUser {
   id: string;
@@ -44,7 +47,7 @@ export async function register(body: Record<string, unknown>) {
   if (existing) throw conflict('Email already registered');
 
   const user = await db.user.create({
-    data: { email, passwordHash: await bcrypt.hash(password, PASSWORD_HASH_ROUNDS), name },
+    data: { email, passwordHash: await bcrypt.hash(password, 10), name },
   });
 
   return {
@@ -68,8 +71,8 @@ export async function login(body: Record<string, unknown>) {
   if (!ok) {
     const attempts = user.failedAttempts + 1;
     const data: { failedAttempts: number; lockedUntil?: Date } = { failedAttempts: attempts };
-    if (attempts >= MAX_LOGIN_ATTEMPTS) {
-      data.lockedUntil = new Date(Date.now() + ACCOUNT_LOCK_DURATION_MS);
+    if (attempts >= 5) {
+      data.lockedUntil = new Date(Date.now() + 15 * 60 * 1000);
     }
     await db.user.update({ where: { id: user.id }, data });
     throw unauthorized('Invalid credentials');
@@ -96,12 +99,12 @@ export async function forgotPassword(body: Record<string, unknown>) {
     data: { usedAt: new Date() },
   });
 
-  const token = crypto.randomBytes(RESET_TOKEN_BYTES).toString('hex');
+  const token = crypto.randomBytes(24).toString('hex');
   await db.passwordResetToken.create({
     data: {
       userId: user.id,
       token,
-      expiresAt: new Date(Date.now() + RESET_TOKEN_DURATION_MS),
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
     },
   });
 
@@ -119,7 +122,7 @@ export async function resetPassword(body: Record<string, unknown>) {
   await db.user.update({
     where: { id: record.userId },
     data: {
-      passwordHash: await bcrypt.hash(newPassword, PASSWORD_HASH_ROUNDS),
+      passwordHash: await bcrypt.hash(newPassword, 10),
       failedAttempts: 0,
       lockedUntil: null,
     },
