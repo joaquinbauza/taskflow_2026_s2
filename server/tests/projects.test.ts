@@ -2,6 +2,17 @@ import request from 'supertest';
 import { app, auth, registerUser } from './helpers';
 
 describe('Proyectos', () => {
+  it('rechaza nombres cortos y acepta el minimo luego de quitar espacios', async () => {
+    const { token } = await registerUser('project-name-length@test.com');
+    for (const name of ['', '  ', ' ab ']) {
+      const response = await request(app).post('/api/projects').set(auth(token)).send({ name });
+      expect(response.status).toBe(400);
+    }
+    const response = await request(app).post('/api/projects').set(auth(token)).send({ name: ' abc ' });
+    expect(response.status).toBe(201);
+    expect(response.body.name).toBe('abc');
+  });
+
   it('crea un proyecto', async () => {
     const { token } = await registerUser('proj1@test.com');
 

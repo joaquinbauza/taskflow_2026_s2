@@ -2,6 +2,19 @@ import request from 'supertest';
 import { app } from './helpers';
 
 describe('Auth', () => {
+  it('acepta y normaliza emails con alias en registro y recuperacion', async () => {
+    const email = ' Alias+test@TEST.com ';
+    const registration = await request(app)
+      .post('/api/auth/register')
+      .send({ email, password: 'Password1' });
+    expect(registration.status).toBe(201);
+    expect(registration.body.user.email).toBe('alias+test@test.com');
+
+    const reset = await request(app).post('/api/auth/forgot-password').send({ email });
+    expect(reset.status).toBe(200);
+    expect(reset.body.token).toEqual(expect.any(String));
+  });
+
   it('registra un usuario nuevo', async () => {
     const res = await request(app)
       .post('/api/auth/register')

@@ -1,7 +1,28 @@
 import request from 'supertest';
-import { app, auth, createProject, registerUser } from './helpers';
+import { app, auth, createProject, createTask, registerUser } from './helpers';
 
 describe('Tareas', () => {
+  it('permite al owner cambiar estado y rechaza a un miembro no asignado', async () => {
+    const owner = await registerUser('status-owner@test.com');
+    const member = await registerUser('status-member@test.com');
+    const project = await createProject(owner.token, 'Permisos de estado');
+    const invitation = await request(app)
+      .post(`/api/projects/${project.id}/members`)
+      .set(auth(owner.token))
+      .send({ email: 'status-member@test.com' });
+    expect(invitation.status).toBe(201);
+    const task = await createTask(owner.token, project.id, { title: 'Sin asignar' });
+
+    const denied = await request(app).patch(`/api/tasks/${task.id}`)
+      .set(auth(member.token)).send({ status: 'IN_PROGRESS' });
+    expect(denied.status).toBe(403);
+
+    const allowed = await request(app).patch(`/api/tasks/${task.id}`)
+      .set(auth(owner.token)).send({ status: 'IN_PROGRESS' });
+    expect(allowed.status).toBe(200);
+    expect(allowed.body.status).toBe('IN_PROGRESS');
+  });
+
   it('crea una tarea en un proyecto', async () => {
     const { token } = await registerUser('task1@test.com');
     const project = await createProject(token, 'Proyecto de tareas');

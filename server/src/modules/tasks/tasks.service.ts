@@ -40,20 +40,40 @@ export function serializeTask(t: TaskRow, extra: Record<string, unknown> = {}) {
   };
 }
 
+async function parseAssigneeId(value: unknown, projectId: number): Promise<number | null> {
+  if (value === null) return null;
+  const id = parsePublicId(value, 'user');
+  if (id === null) throw badRequest('assigneeId must be a valid user id');
+  if (!(await isMember(id, projectId))) {
+    throw badRequest('The assignee must be a member of the project');
+  }
+  return id;
+}
+
+async function resolveStatusChange(task: TaskRow, userId: number, value: unknown): Promise<Status | null> {
+  if (value === undefined) return null;
+  const requested = assertStatus(value);
+  if (requested === task.status) return null;
+
+  if (task.assigneeId !== userId) {
+    const membership = await db.projectMember.findUnique({
+      where: { projectId_userId: { projectId: task.projectId, userId } },
+    });
+    if (!membership || (membership.role !== 'OWNER' && membership.role !== 'ADMIN')) {
+      throw forbidden('Only the assignee or a project admin can change the status');
+    }
+  }
+
+  assertTransition(task.status as Status, requested);
+  return requested;
+}
+
 export async function createTask(projectId: number, userId: number, body: Record<string, unknown>) {
   const title = assertString(body.title, 'title', 3, 200);
   const description = assertOptionalString(body.description, 'description', 500);
   const priority = body.priority === undefined ? 'MEDIUM' : assertPriority(body.priority);
 
-  let assigneeId: number | null = null;
-  if (body.assigneeId !== undefined && body.assigneeId !== null) {
-    const parsed = parsePublicId(body.assigneeId, 'user');
-    if (parsed === null) throw badRequest('assigneeId must be a valid user id');
-    if (!(await isMember(parsed, projectId))) {
-      throw badRequest('The assignee must be a member of the project');
-    }
-    assigneeId = parsed;
-  }
+  const assigneeId = body.assigneeId === undefined ? null : await parseAssigneeId(body.assigneeId, projectId);
 
   const dueDate = body.dueDate === undefined ? undefined : parseDueDate(body.dueDate);
   if (dueDate === undefined && body.dueDate !== undefined) {
@@ -89,7 +109,6 @@ export async function updateTask(taskId: number, userId: number, body: Record<st
   if (!task) throw notFound('Task not found');
 
   const data: Record<string, unknown> = {};
-  let nextStatus: Status | null = null;
 
   if (body.title !== undefined) {
     data.title = assertString(body.title, 'title', 3, 200);
@@ -113,45 +132,10 @@ export async function updateTask(taskId: number, userId: number, body: Record<st
   }
 
   if (body.assigneeId !== undefined) {
-    if (body.assigneeId === null) {
-      data.assigneeId = null;
-    } else {
-      const parsed = parsePublicId(body.assigneeId, 'user');
-      if (parsed === null) {
-        throw badRequest('assigneeId must be a valid user id');
-      } else {
-        const memberOfProject = await isMember(parsed, task.projectId);
-        if (!memberOfProject) {
-          throw badRequest('The assignee must be a member of the project');
-        } else {
-          data.assigneeId = parsed;
-        }
-      }
-    }
+    data.assigneeId = await parseAssigneeId(body.assigneeId, task.projectId);
   }
 
-  if (body.status !== undefined) {
-    const requested = assertStatus(body.status);
-    if (requested !== task.status) {
-      const isAssignee = task.assigneeId === userId;
-      if (!isAssignee) {
-        const membership = await db.projectMember.findUnique({
-          where: { projectId_userId: { projectId: task.projectId, userId } },
-        });
-        if (!membership) {
-          throw forbidden('Only the assignee or a project admin can change the status');
-        } else if (membership.role !== 'OWNER' && membership.role !== 'ADMIN') {
-          throw forbidden('Only the assignee or a project admin can change the status');
-        } else {
-          assertTransition(task.status as Status, requested);
-          nextStatus = requested;
-        }
-      } else {
-        assertTransition(task.status as Status, requested);
-        nextStatus = requested;
-      }
-    }
-  }
+  const nextStatus = await resolveStatusChange(task, userId, body.status);
 
   if (nextStatus !== null) {
     data.status = nextStatus;

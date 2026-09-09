@@ -6,9 +6,9 @@ export function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
-export function assertEmail(email: unknown): string {
+export function assertEmail(email: unknown, message = 'Email must be a valid address'): string {
   if (typeof email !== 'string' || !EMAIL_RE.test(email.trim())) {
-    throw badRequest('Email must be a valid address');
+    throw badRequest(message);
   }
   return normalizeEmail(email);
 }
