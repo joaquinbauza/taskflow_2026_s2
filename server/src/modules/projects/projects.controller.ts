@@ -141,8 +141,7 @@ export async function addMember(req: Request, res: Response, next: NextFunction)
     if (!project) throw notFound('Project not found');
     if (project.ownerId !== userId) throw forbidden('Only the project owner can manage members');
 
-    const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
-    if (assertEmail(req.body?.email)) throw badRequest('email must be a valid address');
+    const email = assertEmail(req.body?.email, 'email must be a valid address');
 
     const user = await db.user.findUnique({ where: { email } });
     if (!user) throw notFound('No user found with that email');

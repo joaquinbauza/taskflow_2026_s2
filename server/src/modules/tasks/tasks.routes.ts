@@ -11,8 +11,8 @@ router.use(authenticate);
 router.get('/:taskId', requireTaskProjectMember('taskId'), controller.getOne);
 router.get('/:taskId/history', requireTaskProjectMember('taskId'), controller.history);
 
-router.patch('/:taskId', controller.update);
-router.delete('/:taskId', controller.remove);
+router.patch('/:taskId', requireTaskProjectMember('taskId'), controller.update);
+router.delete('/:taskId', requireTaskProjectMember('taskId'), controller.remove);
 
 router.post('/:taskId/tags', requireTaskProjectMember('taskId'), controller.addTag);
 router.delete('/:taskId/tags/:tagId', requireTaskProjectMember('taskId'), controller.removeTag);
