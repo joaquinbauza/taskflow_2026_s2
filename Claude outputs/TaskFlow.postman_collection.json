@@ -1,0 +1,639 @@
+{
+  "info": {
+    "name": "TaskFlow — Casos de prueba (QA)",
+    "description": "Coleccion de arranque para el trabajo de Testing y Calidad de Software sobre TaskFlow.\n\nIncluye login/registro y una serie de requests marcados [BUG?]: cada uno contrasta el comportamiento real de la API contra un criterio de aceptacion puntual de 'taskflow_especificacion_requerimientos.docx'. Un test en rojo en estos requests es evidencia de un bug a documentar; complementa esto con tus propios casos para cubrir el resto de los endpoints (comentarios, etiquetas, filtros, paginacion, etc).\n\nOrden sugerido para correr todo junto: Collection Runner sobre las 3 carpetas, en orden, con el environment 'TaskFlow - Local' activo y el servidor levantado (npm run dev).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 - Auth",
+      "item": [
+        {
+          "name": "Registrar usuario de prueba (QA)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Crea un usuario nuevo y guarda su token en {{token}} para usarlo en el resto de la coleccion.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"qa.{{$timestamp}}@test.com\",\n  \"password\": \"Password1\",\n  \"name\": \"QA Tester\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Registro devuelve 201', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.test('La respuesta incluye token y user', () => {",
+                  "    pm.expect(json).to.have.property('token');",
+                  "    pm.expect(json).to.have.property('user');",
+                  "});",
+                  "if (json.token) pm.environment.set('token', json.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[BUG?] Registro con password de 7 caracteres",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "US-01 AC3 (especificacion): la contrasena debe tener MINIMO 8 caracteres, al menos 1 numero y 1 mayuscula. 'Abcdef1' tiene 7 caracteres.\nEsperado segun la especificacion: 400 VALIDATION_ERROR.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"qa.pw7.{{$timestamp}}@test.com\",\n  \"password\": \"Abcdef1\",\n  \"name\": \"QA Corta\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('US-01 AC3: password de 7 caracteres debe rechazarse (400)', () => {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Ana (usuario semilla)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Usa los datos que carga 'npm run db:setup'. Guarda el token en {{tokenAna}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ana@test.com\",\n  \"password\": \"Password1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login devuelve 200', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "if (json.token) pm.environment.set('tokenAna', json.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Bob (usuario semilla)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Bob es miembro (no owner) del proyecto semilla 'Migracion legacy', que esta archivado. Se usa para probar US-04 AC2.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"bob@test.com\",\n  \"password\": \"Password1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login devuelve 200', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "if (json.token) pm.environment.set('tokenBob', json.token);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 - Projects",
+      "item": [
+        {
+          "name": "Crear proyecto valido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/projects",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "projects"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Proyecto QA {{$timestamp}}\",\n  \"description\": \"Proyecto creado por la coleccion de pruebas\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Crear proyecto devuelve 201', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "if (json.id) pm.environment.set('projectId', json.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[BUG?] Crear proyecto con nombre de 2 caracteres",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/projects",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "projects"
+              ]
+            },
+            "description": "US-03 AC1 (especificacion): el nombre es obligatorio y tiene ENTRE 3 y 100 caracteres. Hay un escenario BDD explicito: 'Crear proyecto falla con nombre demasiado corto' -> 400.\nEsperado segun la especificacion: 400 VALIDATION_ERROR.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"ab\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"US-03 AC1: nombre de 2 caracteres debe rechazarse (400)\", () => {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[BUG?] Agregar miembro por email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/projects/{{projectId}}/members",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "projects",
+                "{{projectId}}",
+                "members"
+              ]
+            },
+            "description": "US-11 AC2 (especificacion): los miembros se agregan indicando su email; si el usuario existe, la respuesta debe ser 201.\nRequiere haber corrido antes 'Crear proyecto valido' (usa {{projectId}}).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"bob@test.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('US-11 AC2: agregar un miembro con email valido debe devolver 201', () => {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[BUG?] Listar proyectos como miembro de uno archivado (Bob)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenBob}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/projects",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "projects"
+              ]
+            },
+            "description": "US-04 AC2 (especificacion): los proyectos archivados NO aparecen en el listado, sea el usuario owner o miembro. Bob es miembro (no owner) del proyecto semilla 'Migracion legacy', que esta archivado.\nRequiere haber corrido antes 'Login Bob (usuario semilla)' y no haber corrido 'npm run db:reset' luego del seed."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('US-04 AC2: un proyecto archivado no debe aparecer aunque el usuario sea miembro', () => {",
+                  "    const projects = pm.response.json();",
+                  "    const archivado = projects.find(p => p.name === 'Migraci\\u00f3n legacy');",
+                  "    pm.expect(archivado, 'Migraci\\u00f3n legacy no deberia estar en la lista').to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Tasks",
+      "item": [
+        {
+          "name": "Crear tarea base (sin forzar status)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/projects/{{projectId}}/tasks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "projects",
+                "{{projectId}}",
+                "tasks"
+              ]
+            },
+            "description": "Tarea limpia (status TODO garantizado) para usar en el test de transicion. Requiere {{projectId}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Tarea base QA\",\n  \"priority\": \"MEDIUM\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Crear tarea devuelve 201', () => pm.response.to.have.status(201));",
+                  "const task = pm.response.json();",
+                  "if (task.id) pm.environment.set('taskId', task.id);",
+                  "pm.test('La tarea nueva arranca en TODO', () => pm.expect(task.status).to.eql('TODO'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[BUG?] Crear tarea forzando status en el body",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/projects/{{projectId}}/tasks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "projects",
+                "{{projectId}}",
+                "tasks"
+              ]
+            },
+            "description": "US-05 AC3 (especificacion): el estado inicial de toda tarea es SIEMPRE TODO, aunque la solicitud incluya otro estado. Hay un escenario BDD explicito para este caso.\nEsperado: 201 y status 'TODO' en la respuesta, sin importar el status enviado.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Tarea forzada DONE\",\n  \"status\": \"DONE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('US-05 AC3: el status inicial debe ser TODO sin importar el body enviado', () => {",
+                  "    pm.response.to.have.status(201);",
+                  "    const task = pm.response.json();",
+                  "    pm.expect(task.status).to.eql('TODO');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[BUG?] Transicion directa TODO -> DONE",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tasks",
+                "{{taskId}}"
+              ]
+            },
+            "description": "US-06 AC2 (especificacion): NO esta permitido ir de TODO directamente a DONE. Escenario BDD explicito: 'No se puede mover de TODO a DONE directamente' -> 422.\nUsa {{taskId}} de 'Crear tarea base (sin forzar status)', que arranca en TODO.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"DONE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('US-06 AC2: TODO -> DONE directo debe rechazarse con 422', () => {",
+                  "    pm.response.to.have.status(422);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cargar dueDate",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tasks",
+                "{{taskId}}"
+              ]
+            },
+            "description": "Paso 1 del test de zona horaria (US-16 AC3). Seguir con 'Verificar dueDate'.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dueDate\": \"2026-09-15\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Actualizar dueDate devuelve 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[BUG?] Verificar dueDate (posible bug de zona horaria)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tasks",
+                "{{taskId}}"
+              ]
+            },
+            "description": "US-16 AC3 (especificacion): la fecha que se devuelve es siempre la misma que se cargo, sin importar la zona horaria del servidor ni la del cliente. Hay un escenario BDD explicito con cliente en UTC-3 (la zona horaria de Uruguay).\nEsperado: dueDate == '2026-09-15'. Si el servidor corre en una zona horaria negativa (UTC-3, por ejemplo), formatDueDate podria devolver '2026-09-14' por una mezcla de Date UTC / getters locales en server/src/lib/ids.ts."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('US-16 AC3: dueDate debe volver igual a como se cargo (2026-09-15)', () => {",
+                  "    const task = pm.response.json();",
+                  "    pm.expect(task.dueDate).to.eql('2026-09-15');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
