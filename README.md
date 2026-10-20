@@ -78,8 +78,10 @@ El comando `db:setup` carga datos de ejemplo. Los tres usuarios comparten la con
 | `npm start` | Corre la versión compilada |
 | `npm run db:setup` | Aplica las migraciones y carga los datos de ejemplo |
 | `npm run db:reset` | Borra la base y la vuelve a crear desde cero |
-| `npm test` | Corre la suite de tests |
-| `npm run test:coverage` | Corre la suite con reporte de cobertura |
+| `npm test` | Corre la suite de tests de integración |
+| `npm run test:coverage` | Corre la suite de integración con reporte de cobertura |
+| `npm run test:e2e` | Corre los tests end-to-end con Playwright |
+| `npm run test:e2e:ui` | Corre los tests end-to-end en modo interactivo (UI mode) |
 
 ## Frontend
 
@@ -164,6 +166,28 @@ npm test
 
 Está lejos de ser exhaustiva — ampliarla es parte del trabajo del semestre.
 
+## Tests end-to-end
+
+Además de la suite de integración (`npm test`, en `server/tests/`, que corre
+contra una base SQLite real pero sin levantar procesos ni navegador), hay una
+suite end-to-end en `e2e/` que usa [Playwright](https://playwright.dev/) para
+manejar un Chromium real contra la aplicación completa: API + frontend +
+base de datos, igual que la usaría una persona.
+
+Para correrla:
+
+```bash
+npx playwright install chromium   # una sola vez, descarga el navegador
+npm run test:e2e
+```
+
+Playwright levanta la API (puerto 3000) y el frontend (puerto 5173) con una
+base SQLite propia en `e2e/.tmp/` (no toca `server/dev.db`), espera a que
+ambos respondan, y recién ahí corre los tests. Cada test espera la respuesta
+HTTP de la acción que dispara (registro, alta de proyecto/tarea, cambio de
+estado) antes de asertar sobre la UI, para evitar falsos verdes por
+condiciones de carrera.
+
 ## Estructura
 
 ```
@@ -179,6 +203,9 @@ taskflow/
 │   └── src/
 │       ├── pages/       # login, proyectos, tablero, detalle, miembros
 │       └── lib/         # cliente HTTP, sesión, helpers
+├── e2e/
+│   └── tests/           # tests end-to-end (Playwright)
+├── playwright.config.ts
 └── README.md
 ```
 

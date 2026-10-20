@@ -14,10 +14,13 @@
     "db:reset": "npm --prefix server run db:reset",
     "test": "npm --prefix server test",
     "test:coverage": "npm --prefix server run test:coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "lint": "npm --prefix server run lint",
     "postinstall": "npm --prefix server install && npm --prefix client install"
   },
   "devDependencies": {
+    "@playwright/test": "1.49.1",
     "concurrently": "9.1.0"
   },
   "engines": {
