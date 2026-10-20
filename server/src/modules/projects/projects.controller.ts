@@ -29,7 +29,7 @@ export async function create(req: Request, res: Response, next: NextFunction): P
   try {
     const userId = req.user!.userId;
     const name = typeof req.body?.name === 'string' ? req.body.name.trim() : '';
-    if (name.length > 100) {
+    if (name.length < 3 || name.length > 100) {
       throw badRequest('name must be between 3 and 100 characters');
     }
     const description = assertOptionalString(req.body?.description, 'description', 500);
@@ -141,8 +141,7 @@ export async function addMember(req: Request, res: Response, next: NextFunction)
     if (!project) throw notFound('Project not found');
     if (project.ownerId !== userId) throw forbidden('Only the project owner can manage members');
 
-    const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
-    if (assertEmail(req.body?.email)) throw badRequest('email must be a valid address');
+    const email = assertEmail(req.body?.email);
 
     const user = await db.user.findUnique({ where: { email } });
     if (!user) throw notFound('No user found with that email');

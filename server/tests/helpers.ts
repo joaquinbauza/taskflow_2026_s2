@@ -24,3 +24,10 @@ export async function createTask(token: string, projectId: string, body: Record<
     .send(body);
   return res.body;
 }
+
+export async function addMember(token: string, projectId: string, email: string) {
+  return request(app)
+    .post(`/api/projects/${projectId}/members`)
+    .set(auth(token))
+    .send({ email });
+}
