@@ -78,8 +78,11 @@ El comando `db:setup` carga datos de ejemplo. Los tres usuarios comparten la con
 | `npm start` | Corre la versión compilada |
 | `npm run db:setup` | Aplica las migraciones y carga los datos de ejemplo |
 | `npm run db:reset` | Borra la base y la vuelve a crear desde cero |
-| `npm test` | Corre la suite de tests de integración |
-| `npm run test:coverage` | Corre la suite de integración con reporte de cobertura |
+| `npm test` | Corre todos los tests de Jest: unitarios, contrato e integración |
+| `npm run test:unit` | Solo los tests unitarios (`server/tests/unit/`) |
+| `npm run test:contract` | Solo la verificación del contrato frontend → API (`server/tests/contract/`) |
+| `npm run test:bugs` | Solo los tests que reproducen los bugs de `docs/bugs.md` |
+| `npm run test:coverage` | Corre la suite de Jest con reporte de cobertura |
 | `npm run test:e2e` | Corre los tests end-to-end con Playwright |
 | `npm run test:e2e:ui` | Corre los tests end-to-end en modo interactivo (UI mode) |
 
@@ -187,6 +190,36 @@ ambos respondan, y recién ahí corre los tests. Cada test espera la respuesta
 HTTP de la acción que dispara (registro, alta de proyecto/tarea, cambio de
 estado) antes de asertar sobre la UI, para evitar falsos verdes por
 condiciones de carrera.
+
+## Pirámide de tests
+
+Lo que se puede probar abajo se prueba abajo:
+
+| Nivel | Dónde | Qué cubre |
+|-------|-------|-----------|
+| Unitarios | `server/tests/unit/` | Lógica pura sin base ni HTTP: transiciones de estado, validaciones, ids y fechas, armado de filtros |
+| Contrato | `client/src/contracts/api.contract.ts` + `server/tests/contract/` | El frontend declara qué status y qué campos espera de cada endpoint que usa; la API real se verifica contra eso |
+| Integración | `server/tests/*.test.ts` | Endpoints con Supertest contra SQLite, incluidas las reglas de negocio y permisos |
+| E2E | `e2e/tests/` | Flujos críticos en el navegador (golden path, login inválido, alta de miembros) |
+
+### Contrato frontend → API
+
+`client/src/contracts/api.contract.ts` es del frontend. Está atado a los tipos
+de `client/src/types.ts` con `satisfies`, así que si se agrega o quita un campo
+en los tipos sin actualizar el contrato, `tsc` del cliente falla. El test
+`server/tests/contract/api.contract.test.ts` ejecuta cada interacción contra
+la API y termina verificando que no haya quedado ninguna sin probar. Si el
+frontend necesita algo nuevo de la API, se agrega primero al contrato.
+
+### Bugs conocidos
+
+Los bugs encontrados están en [`docs/bugs.md`](docs/bugs.md), cada uno con su
+reporte y al menos un test que lo reproduce. Esos tests describen el
+comportamiento correcto y corren como falla esperada (`knownBug` en Jest,
+`test.fail` en Playwright): quedan en verde mientras el bug exista y pasan a
+rojo cuando se arregla, momento en el que hay que convertirlos en tests
+normales. Para ver las fallas reales: `SHOW_BUGS=1 npm test`
+(en PowerShell: `$env:SHOW_BUGS=1; npm test`).
 
 ## Estructura
 

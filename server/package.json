@@ -13,6 +13,9 @@
     "db:seed:large": "ts-node --transpile-only prisma/seed-large.ts",
     "test": "jest --runInBand",
     "test:coverage": "jest --runInBand --coverage",
+    "test:unit": "jest --runInBand tests/unit",
+    "test:contract": "jest --runInBand tests/contract",
+    "test:bugs": "jest --runInBand tests/bugs.test.ts",
     "lint": "eslint src --ext .ts"
   },
   "dependencies": {
