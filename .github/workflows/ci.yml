@@ -8,12 +8,17 @@
 # - `npm ci` en la raíz instala también server/ y client/ (postinstall).
 # - `npx prisma generate` antes de compilar o testear el server.
 # - No hace falta .env: Jest y Playwright arman su propia base SQLite.
+# - TZ fijo en Montevideo (UTC-3): los runners de GitHub corren en UTC y ahí
+#   BUG-03 (la fecha de vencimiento vuelve un día antes) no se reproduce.
 
 name: CI de calidad (informativo)
 
 on:
   push:
   pull_request:
+
+env:
+  TZ: America/Montevideo
 
 jobs:
   build:
