@@ -13,6 +13,9 @@
     "db:seed:large": "ts-node --transpile-only prisma/seed-large.ts",
     "test": "jest --runInBand",
     "test:coverage": "jest --runInBand --coverage",
+    "test:unit": "jest --runInBand tests/unit",
+    "test:contract": "jest --runInBand tests/contract",
+    "test:bugs": "jest --runInBand tests/bugs.test.ts",
     "lint": "eslint src --ext .ts"
   },
   "dependencies": {
@@ -23,6 +26,7 @@
     "jsonwebtoken": "9.0.2"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@types/bcryptjs": "2.4.6",
     "@types/cors": "2.8.17",
     "@types/express": "4.17.21",
@@ -30,12 +34,15 @@
     "@types/jsonwebtoken": "9.0.7",
     "@types/node": "20.19.9",
     "@types/supertest": "6.0.2",
+    "eslint": "^9.39.5",
+    "globals": "^17.14.0",
     "jest": "29.7.0",
     "prisma": "6.19.3",
     "supertest": "7.0.0",
     "ts-jest": "29.2.5",
     "ts-node": "10.9.2",
     "ts-node-dev": "2.0.0",
-    "typescript": "5.6.3"
+    "typescript": "5.6.3",
+    "typescript-eslint": "^8.72.2"
   }
 }

@@ -14,11 +14,23 @@
     "db:reset": "npm --prefix server run db:reset",
     "test": "npm --prefix server test",
     "test:coverage": "npm --prefix server run test:coverage",
+    "test:unit": "npm --prefix server run test:unit",
+    "test:contract": "npm --prefix server run test:contract",
+    "test:bugs": "npm --prefix server run test:bugs",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "lint": "npm --prefix server run lint",
     "postinstall": "npm --prefix server install && npm --prefix client install"
   },
   "devDependencies": {
-    "concurrently": "9.1.0"
+    "@eslint/js": "^9.39.5",
+    "@playwright/test": "1.49.1",
+    "concurrently": "9.1.0",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^17.14.0",
+    "jiti": "^2.7.0",
+    "typescript-eslint": "^8.72.2"
   },
   "engines": {
     "node": ">=20"
