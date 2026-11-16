@@ -29,7 +29,7 @@ export async function create(req: Request, res: Response, next: NextFunction): P
   try {
     const userId = req.user!.userId;
     const name = typeof req.body?.name === 'string' ? req.body.name.trim() : '';
-    if (name.length > 100) {
+    if (name.length < 3 || name.length > 100) {
       throw badRequest('name must be between 3 and 100 characters');
     }
     const description = assertOptionalString(req.body?.description, 'description', 500);
