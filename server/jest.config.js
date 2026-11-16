@@ -8,4 +8,7 @@ module.exports = {
   collectCoverageFrom: ['src/**/*.ts', '!src/index.ts', '!src/types/**'],
   coverageReporters: ['text', 'lcov'],
   testTimeout: 20000,
+  coverageThreshold: {
+    global: { lines: 70, branches: 40 },
+  },
 };
