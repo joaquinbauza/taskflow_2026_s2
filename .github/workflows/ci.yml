@@ -1,0 +1,124 @@
+# Pipeline de calidad de TaskFlow (Clase 12 · Ejercicio 1A + 1C).
+#
+# Informativo: corre en cada push y en cada PR, pero no bloquea el merge
+# (main no tiene branch protection). Los jobs no usan `needs`, así que son
+# independientes: un job en rojo no oculta el resultado de los demás.
+#
+# Particularidades de TaskFlow:
+# - `npm ci` en la raíz instala también server/ y client/ (postinstall).
+# - `npx prisma generate` antes de compilar o testear el server.
+# - No hace falta .env: Jest y Playwright arman su propia base SQLite.
+
+name: CI de calidad (informativo)
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    name: Build del server (tsc)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+        working-directory: server
+      - run: npm run build
+
+  lint:
+    name: Lint (ESLint)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Lint del server
+        run: npx eslint .
+        working-directory: server
+      - name: Lint del cliente y de e2e (config de la raíz)
+        run: npx eslint .
+
+  tests:
+    name: Tests unitarios, contrato e integración (Jest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+        working-directory: server
+      - run: npm test
+
+  coverage:
+    name: Cobertura (umbral de jest.config.js)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+        working-directory: server
+      - run: npm run test:coverage
+      - name: Subir el reporte de cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: server/coverage/
+          retention-days: 14
+
+  build-client:
+    name: Build del cliente (tsc + vite)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build:client
+
+  # Ejercicio 1C (opcional). Playwright levanta API y frontend con `webServer`
+  # y espera a que respondan (/api/health y :5173) antes de correr los tests.
+  e2e:
+    name: E2E (Playwright)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+        working-directory: server
+      - name: Instalar Chromium para Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Correr los tests E2E
+        run: npx playwright test --reporter=list,html
+        env:
+          CI: true
+      - name: Subir reporte y traces de Playwright
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
