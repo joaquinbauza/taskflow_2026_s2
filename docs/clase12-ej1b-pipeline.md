@@ -57,4 +57,5 @@ BUG-03 (la fecha de vencimiento vuelve un día antes) solo se reproduce con el s
 
 - **Cómo se confirmó:** se corrió la suite en la misma máquina con `TZ=UTC` → 16 fallos; con la zona local → 17. La única diferencia es ese test.
 - **Categoría:** d. pipeline o entorno. No es un problema del código de testing sino de dónde corre.
-- **Corrección:** se fijó `TZ: America/Montevideo` en `ci.yml`, así el pipeline prueba con la zona horaria de producción. Con ese cambio se espera `17 failed` también en CI.
+- **Corrección:** se fijó `TZ: America/Montevideo` en `ci.yml`, así el pipeline prueba con la zona horaria de producción.
+- **Verificación:** en la corrida #3 (commit `f60df64`), el job de Tests muestra `Tests: 17 failed, 229 passed, 246 total`: el pipeline ahora detecta BUG-03, igual que las computadoras del equipo.
