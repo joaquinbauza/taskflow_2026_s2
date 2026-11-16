@@ -56,7 +56,7 @@ describe('BUG-07 · PATCH y DELETE de tareas no verifican membresía (US-12, US-
     taskId = (await createTask(ownerToken, project.id, { title: 'Título original' })).id;
   });
 
-  knownBug('un usuario ajeno no puede editar la tarea (403) y el título no cambia', async () => {
+  it('un usuario ajeno no puede editar la tarea (403) y el título no cambia', async () => {
     const res = await request(app)
       .patch(`/api/tasks/${taskId}`)
       .set(auth(outsiderToken))
@@ -68,7 +68,7 @@ describe('BUG-07 · PATCH y DELETE de tareas no verifican membresía (US-12, US-
     });
   });
 
-  knownBug('un usuario ajeno no puede eliminar la tarea (403) y la tarea sigue existiendo', async () => {
+  it('un usuario ajeno no puede eliminar la tarea (403) y la tarea sigue existiendo', async () => {
     const res = await request(app).delete(`/api/tasks/${taskId}`).set(auth(outsiderToken));
     const after = await request(app).get(`/api/tasks/${taskId}`).set(auth(ownerToken));
     expect({ status: res.status, stillExists: after.status === 200 }).toEqual({
@@ -103,7 +103,7 @@ describe('BUG-08 · Quitar un miembro no libera sus tareas y el ex-miembro sigue
     expect(res.body.assigneeId).toBeNull();
   });
 
-  knownBug('el ex-miembro no puede cambiar el estado de la tarea (403)', async () => {
+  it('el ex-miembro no puede cambiar el estado de la tarea (403)', async () => {
     const res = await request(app)
       .patch(`/api/tasks/${taskId}`)
       .set(auth(exToken))

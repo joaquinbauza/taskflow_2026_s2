@@ -25,7 +25,7 @@ describe('Miembros', () => {
 
   it('rechaza agregar dos veces al mismo miembro', async () => {
     const owner = await registerUser('members-duplicate@test.com');
-    const invitee = await registerUser('members-duplicate-invitee@test.com');
+    await registerUser('members-duplicate-invitee@test.com');
     const project = await createProject(owner.token, 'Proyecto con duplicado');
 
     await addMember(owner.token, project.id, 'members-duplicate-invitee@test.com');

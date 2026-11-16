@@ -8,7 +8,6 @@
  *
  * Los tests corren en orden y comparten estado (usuarios, proyecto, tarea...).
  */
-import { knownBug } from '../knownBug';
 import request, { Response } from 'supertest';
 import {
   contract,
@@ -90,8 +89,8 @@ describe('Contrato frontend → API', () => {
       expect(res.body.map((p: { id: string }) => p.id)).toContain(projectId);
     });
 
-    // BUG-06: addMember siempre responde 400 con un email válido.
-    knownBug('[BUG-06] POST /projects/:projectId/members', async () => {
+    // BUG-06 (resuelto): addMember respondía 400 a cualquier email válido.
+    it('[BUG-06] POST /projects/:projectId/members', async () => {
       const res = await request(app)
         .post(`/api/projects/${projectId}/members`)
         .set(auth(ownerToken))

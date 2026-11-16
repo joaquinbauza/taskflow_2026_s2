@@ -3,9 +3,8 @@ import { expect, test, type APIRequestContext } from '@playwright/test';
 /**
  * US-11 — El owner agrega un miembro por email desde la pantalla de miembros.
  *
- * Hoy falla por BUG-06 (docs/bugs.md): la API responde 400 a cualquier email
- * válido. Se marca como falla esperada; con SHOW_BUGS=1 corre como un test
- * normal y muestra el error real.
+ * Reproducía BUG-06 (docs/bugs.md): la API respondía 400 a cualquier email
+ * válido. El bug está resuelto, así que corre como un test normal.
  */
 
 async function registerViaApi(request: APIRequestContext, email: string) {
@@ -17,8 +16,6 @@ async function registerViaApi(request: APIRequestContext, email: string) {
 }
 
 test('el owner agrega un miembro por email y aparece en la lista', async ({ page, request }) => {
-  test.fail(!process.env.SHOW_BUGS, 'BUG-06: POST /projects/:id/members responde 400 con emails válidos');
-
   const stamp = Date.now();
   const owner = await registerViaApi(request, `e2e-owner-${stamp}@taskflow.test`);
   const member = await registerViaApi(request, `e2e-member-${stamp}@taskflow.test`);

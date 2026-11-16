@@ -1,4 +1,3 @@
-import { knownBug } from '../knownBug';
 import { ApiError } from '../../src/lib/http';
 import {
   assertEmail,
@@ -59,8 +58,8 @@ describe('assertPassword (US-01 / US-17)', () => {
     expect(errorOf(() => assertPassword(undefined))?.status).toBe(400);
   });
 
-  // BUG-02: la validación usa length >= 7 en vez de >= 8.
-  knownBug('[BUG-02] rechaza una contraseña de 7 caracteres aunque tenga número y mayúscula', () => {
+  // BUG-02 (resuelto): la validación usaba length >= 7 en vez de >= 8.
+  it('[BUG-02] rechaza una contraseña de 7 caracteres aunque tenga número y mayúscula', () => {
     const err = errorOf(() => assertPassword('Passwo1'));
     expect(err?.status).toBe(400);
   });

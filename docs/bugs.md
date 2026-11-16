@@ -1,6 +1,6 @@
 # Reporte de bugs — TaskFlow
 
-**Rama:** `feat/e2e-tests` · **Fecha:** 26/10/2026 · **Referencia:** `taskflow_especificacion_requerimientos.docx` (v1.0), que es la fuente de verdad.
+**Rama:** `main` · **Fecha:** 26/10/2026 (estado actualizado el 16/11/2026, después de mergear todas las ramas) · **Referencia:** `taskflow_especificacion_requerimientos.docx` (v1.0), que es la fuente de verdad.
 
 **Entorno:** Node ≥ 20, API Express + Prisma + SQLite, frontend React + Vite. Los pasos asumen la API en `http://localhost:3000/api` y el header `Authorization: Bearer <token>` en todo lo que no sea `/auth/*`.
 
@@ -13,28 +13,28 @@ $env:SHOW_BUGS=1; npm test        # Windows PowerShell
 
 ## Resumen
 
-| ID | Título | Severidad | Historia | Nivel del test |
-|----|--------|-----------|----------|----------------|
-| [BUG-06](#bug-06) | No se puede agregar ningún miembro a un proyecto | Crítica | US-11 | Contrato + E2E |
-| [BUG-07](#bug-07) | Cualquier usuario puede editar o borrar tareas de proyectos ajenos | Crítica | US-12, US-13 | Integración |
-| [BUG-09](#bug-09) | Inyección SQL en la búsqueda de tareas | Crítica | US-07 | Integración |
-| [BUG-14](#bug-14) | `forgot-password` revela si la cuenta existe y devuelve el token | Crítica | US-17 | Integración |
-| [BUG-15](#bug-15) | `reset-password` acepta tokens usados, invalidados o vencidos | Crítica | US-17 | Integración |
-| [BUG-08](#bug-08) | Un ex-miembro conserva sus tareas y puede seguir operándolas | Alta | US-11 | Integración |
-| [BUG-01](#bug-01) | Se permite pasar una tarea de TODO a DONE | Alta | US-06 | Unitario |
-| [BUG-03](#bug-03) | La fecha de vencimiento vuelve un día antes en UTC-3 | Alta | US-16 | Unitario |
-| [BUG-05](#bug-05) | Los filtros del listado de tareas no se combinan | Alta | US-07 | Unitario + Integración |
-| [BUG-11](#bug-11) | El listado de tareas no pagina | Alta | US-07 | Integración |
-| [BUG-12](#bug-12) | Al crear una tarea se puede forzar el estado (asignación masiva) | Alta | US-05 | Integración |
-| [BUG-16](#bug-16) | El contador de intentos fallidos no se reinicia tras un login exitoso | Alta | US-02 | Integración |
-| [BUG-20](#bug-20) | Borrar un proyecto deja comentarios e historial huérfanos | Alta | US-10 | Integración |
-| [BUG-02](#bug-02) | Se aceptan contraseñas de 7 caracteres | Media | US-01, US-17 | Unitario |
-| [BUG-04](#bug-04) | Se aceptan fechas de vencimiento inexistentes (2026-02-30) | Media | US-16 | Unitario |
-| [BUG-10](#bug-10) | La búsqueda distingue mayúsculas de minúsculas | Media | US-07 | Integración |
-| [BUG-13](#bug-13) | Los comentarios se devuelven del más nuevo al más viejo | Media | US-08 | Integración |
-| [BUG-17](#bug-17) | Las etiquetas no se normalizan y se duplican | Media | US-15 | Integración |
-| [BUG-18](#bug-18) | Se pueden crear proyectos con nombre vacío o de menos de 3 caracteres | Media | US-03 | Integración (test existente) |
-| [BUG-19](#bug-19) | Un miembro ve los proyectos archivados | Media | US-04 | Integración |
+| ID | Título | Severidad | Historia | Nivel del test | Estado |
+|----|--------|-----------|----------|----------------|--------|
+| [BUG-06](#bug-06) | No se puede agregar ningún miembro a un proyecto | Crítica | US-11 | Contrato + E2E | ✅ Resuelto |
+| [BUG-07](#bug-07) | Cualquier usuario puede editar o borrar tareas de proyectos ajenos | Crítica | US-12, US-13 | Integración | ✅ Resuelto |
+| [BUG-09](#bug-09) | Inyección SQL en la búsqueda de tareas | Crítica | US-07 | Integración | Abierto |
+| [BUG-14](#bug-14) | `forgot-password` revela si la cuenta existe y devuelve el token | Crítica | US-17 | Integración | Abierto |
+| [BUG-15](#bug-15) | `reset-password` acepta tokens usados, invalidados o vencidos | Crítica | US-17 | Integración | Abierto |
+| [BUG-08](#bug-08) | Un ex-miembro conserva sus tareas y puede seguir operándolas | Alta | US-11 | Integración | ⚠️ Parcial |
+| [BUG-01](#bug-01) | Se permite pasar una tarea de TODO a DONE | Alta | US-06 | Unitario | Abierto |
+| [BUG-03](#bug-03) | La fecha de vencimiento vuelve un día antes en UTC-3 | Alta | US-16 | Unitario | Abierto |
+| [BUG-05](#bug-05) | Los filtros del listado de tareas no se combinan | Alta | US-07 | Unitario + Integración | Abierto |
+| [BUG-11](#bug-11) | El listado de tareas no pagina | Alta | US-07 | Integración | Abierto |
+| [BUG-12](#bug-12) | Al crear una tarea se puede forzar el estado (asignación masiva) | Alta | US-05 | Integración | Abierto |
+| [BUG-16](#bug-16) | El contador de intentos fallidos no se reinicia tras un login exitoso | Alta | US-02 | Integración | Abierto |
+| [BUG-20](#bug-20) | Borrar un proyecto deja comentarios e historial huérfanos | Alta | US-10 | Integración | Abierto |
+| [BUG-02](#bug-02) | Se aceptan contraseñas de 7 caracteres | Media | US-01, US-17 | Unitario | ✅ Resuelto |
+| [BUG-04](#bug-04) | Se aceptan fechas de vencimiento inexistentes (2026-02-30) | Media | US-16 | Unitario | Abierto |
+| [BUG-10](#bug-10) | La búsqueda distingue mayúsculas de minúsculas | Media | US-07 | Integración | Abierto |
+| [BUG-13](#bug-13) | Los comentarios se devuelven del más nuevo al más viejo | Media | US-08 | Integración | Abierto |
+| [BUG-17](#bug-17) | Las etiquetas no se normalizan y se duplican | Media | US-15 | Integración | Abierto |
+| [BUG-18](#bug-18) | Se pueden crear proyectos con nombre vacío o de menos de 3 caracteres | Media | US-03 | Integración (test existente) | ✅ Resuelto |
+| [BUG-19](#bug-19) | Un miembro ve los proyectos archivados | Media | US-04 | Integración | Abierto |
 
 Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutilizable; **Alta** = incumple una regla de negocio o pierde/corrompe datos; **Media** = incumple un criterio de aceptación sin pérdida de datos.
 
@@ -52,6 +52,7 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Evidencia:** [captura del E2E](evidencias/BUG-06-miembros.png).
 - **Test:** `server/tests/contract/api.contract.test.ts › [BUG-06] POST /projects/:projectId/members`, `e2e/tests/members.spec.ts`. También rompe el test existente `tasks.test.ts › permite al owner cambiar estado y rechaza a un miembro no asignado`.
 - **Causa probable:** `projects.controller.ts:145` — `if (assertEmail(...)) throw badRequest(...)`. `assertEmail` devuelve el email normalizado (truthy) cuando es válido, así que la condición es siempre verdadera.
+- **Estado:** ✅ Resuelto. Lo arreglaron las ramas `bugs-endpoints` y `fix/project-members-validation`; los tests ahora corren como tests normales.
 
 ### BUG-07
 **Cualquier usuario autenticado puede editar o borrar tareas de proyectos ajenos** · Severidad: Crítica · US-12 (criterio 5), US-13 (criterio 1), Seguridad 2
@@ -62,6 +63,7 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Obtenido:** PATCH → 200 y el título cambia; DELETE → 204 y la tarea se borra.
 - **Test:** `server/tests/bugs.test.ts › BUG-07` (2 tests).
 - **Causa probable:** `tasks.routes.ts:14-15` — `PATCH /:taskId` y `DELETE /:taskId` no usan el middleware `requireTaskProjectMember`, a diferencia de las demás rutas del router.
+- **Estado:** ✅ Resuelto en la rama `bugs-endpoints`: las rutas PATCH y DELETE usan `requireTaskProjectMember`. Los tests ahora corren como tests normales.
 
 ### BUG-09
 **Inyección SQL en la búsqueda de tareas** · Severidad: Crítica · US-07, Seguridad 1
@@ -105,6 +107,7 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Obtenido:** `task-1` sigue asignada a Bob; el PATCH devuelve 200 y cambia el estado.
 - **Test:** `server/tests/bugs.test.ts › BUG-08` (2 tests).
 - **Causa probable:** `projects.controller.ts:188` borra la membresía sin desasignar tareas; `tasks.service.ts:58` saltea la verificación cuando el usuario es el asignado, y la ruta PATCH no verifica membresía (ver BUG-07).
+- **Estado:** ⚠️ Parcial. Con el arreglo de BUG-07 el ex-miembro ya recibe 403 (ese test corre como test normal), pero la tarea sigue asignada a él: el test `la tarea del miembro quitado queda sin asignado` sigue como falla esperada.
 
 ### BUG-01
 **Se permite pasar una tarea de TODO directamente a DONE** · Severidad: Alta · US-06 (criterio 2)
@@ -183,6 +186,7 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Obtenido:** HTTP 201.
 - **Test:** `server/tests/unit/validation.test.ts › [BUG-02]`.
 - **Causa probable:** `validation.ts:20` — `password.length >= 7`.
+- **Estado:** ✅ Resuelto en la rama `bugs-endpoints` (`length >= 8`). El test corre como test normal.
 
 ### BUG-04
 **Se aceptan fechas de vencimiento inexistentes** · Severidad: Media · US-16 (criterio 6)
@@ -228,6 +232,7 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Obtenido:** HTTP 201.
 - **Test:** test existente `server/tests/projects.test.ts › rechaza nombres cortos y acepta el minimo luego de quitar espacios` (falla).
 - **Causa probable:** `projects.controller.ts:32` — solo se valida el máximo (`> 100`), falta el mínimo de 3. El `update` sí lo valida.
+- **Estado:** ✅ Resuelto en la rama `fix/project-members-validation`: `create` valida el mínimo de 3 caracteres. El test existente pasa.
 
 ### BUG-19
 **Un miembro ve los proyectos archivados** · Severidad: Media · US-04 (criterio 2)
