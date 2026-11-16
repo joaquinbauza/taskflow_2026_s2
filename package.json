@@ -23,9 +23,14 @@
     "postinstall": "npm --prefix server install && npm --prefix client install"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@playwright/test": "1.49.1",
     "concurrently": "9.1.0",
-    "jiti": "^2.7.0"
+    "eslint": "^9.39.5",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^17.14.0",
+    "jiti": "^2.7.0",
+    "typescript-eslint": "^8.72.2"
   },
   "engines": {
     "node": ">=20"
