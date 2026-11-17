@@ -33,7 +33,7 @@
 | Alta | 10 | BUG-01 TODO→DONE, BUG-03 fecha −1 día en UTC-3, BUG-05 filtros, BUG-08 ex-miembro conserva tareas (parcial), BUG-11 sin paginación, BUG-12 estado forzado al crear, BUG-16 contador de intentos, BUG-20 huérfanos al borrar, **BUG-21** secreto JWT por defecto (SEC-02), **BUG-22** p95 5,6 s |
 | Media | 5 | BUG-04 fecha inexistente, BUG-10 búsqueda case-sensitive, BUG-13 orden de comentarios, BUG-17 etiquetas, BUG-19 archivados visibles |
 
-Issues: 18 en [`docs/issues/`](issues/) (sin `gh` disponible, pendientes de cargar en GitHub).
+Issues: los 18 defectos abiertos están cargados en GitHub como **#2 a #19** con etiqueta de severidad (`critica` 3, `alta` 10, `media` 5); críticos: BUG-09 [#8](https://github.com/joaquinbauza/taskflow_2026_s2/issues/8), BUG-14 [#13](https://github.com/joaquinbauza/taskflow_2026_s2/issues/13), BUG-15 [#14](https://github.com/joaquinbauza/taskflow_2026_s2/issues/14). La correspondencia completa bug → issue está en la columna "Issue" de [`bugs.md`](bugs.md); las plantillas, en [`docs/issues/`](issues/).
 
 ## Riesgos sin mitigar
 

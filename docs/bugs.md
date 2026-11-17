@@ -1,6 +1,6 @@
 # Reporte de bugs — TaskFlow
 
-**Rama:** `main` · **Fecha:** 26/10/2026 (estado actualizado el 16/11/2026 en la rama `entrega-final`: BUG-21 y BUG-22 nuevos; issues en [`docs/issues/`](issues/)) · **Referencia:** `taskflow_especificacion_requerimientos.docx` (v1.0), que es la fuente de verdad.
+**Rama:** `main` · **Fecha:** 26/10/2026 (estado actualizado el 16/11/2026 en la rama `entrega-final`: BUG-21 y BUG-22 nuevos; issues en [`docs/issues/`](issues/), cargados en GitHub como [#2 a #19](https://github.com/joaquinbauza/taskflow_2026_s2/issues?q=is%3Aissue)) · **Referencia:** `taskflow_especificacion_requerimientos.docx` (v1.0), que es la fuente de verdad.
 
 **Entorno:** Node ≥ 20, API Express + Prisma + SQLite, frontend React + Vite. Los pasos asumen la API en `http://localhost:3000/api` y el header `Authorization: Bearer <token>` en todo lo que no sea `/auth/*`.
 
@@ -13,30 +13,30 @@ $env:SHOW_BUGS=1; npm test        # Windows PowerShell
 
 ## Resumen
 
-| ID | Título | Severidad | Historia | Nivel del test | Estado |
-|----|--------|-----------|----------|----------------|--------|
-| [BUG-06](#bug-06) | No se puede agregar ningún miembro a un proyecto | Crítica | US-11 | Contrato + E2E | ✅ Resuelto |
-| [BUG-07](#bug-07) | Cualquier usuario puede editar o borrar tareas de proyectos ajenos | Crítica | US-12, US-13 | Integración | ✅ Resuelto |
-| [BUG-09](#bug-09) | Inyección SQL en la búsqueda de tareas | Crítica | US-07 | Integración | Abierto |
-| [BUG-14](#bug-14) | `forgot-password` revela si la cuenta existe y devuelve el token | Crítica | US-17 | Integración | Abierto |
-| [BUG-15](#bug-15) | `reset-password` acepta tokens usados, invalidados o vencidos | Crítica | US-17 | Integración | Abierto |
-| [BUG-08](#bug-08) | Un ex-miembro conserva sus tareas y puede seguir operándolas | Alta | US-11 | Integración | ⚠️ Parcial |
-| [BUG-01](#bug-01) | Se permite pasar una tarea de TODO a DONE | Alta | US-06 | Unitario | Abierto |
-| [BUG-03](#bug-03) | La fecha de vencimiento vuelve un día antes en UTC-3 | Alta | US-16 | Unitario | Abierto |
-| [BUG-05](#bug-05) | Los filtros del listado de tareas no se combinan | Alta | US-07 | Unitario + Integración | Abierto |
-| [BUG-11](#bug-11) | El listado de tareas no pagina | Alta | US-07 | Integración | Abierto |
-| [BUG-12](#bug-12) | Al crear una tarea se puede forzar el estado (asignación masiva) | Alta | US-05 | Integración | Abierto |
-| [BUG-16](#bug-16) | El contador de intentos fallidos no se reinicia tras un login exitoso | Alta | US-02 | Integración | Abierto |
-| [BUG-20](#bug-20) | Borrar un proyecto deja comentarios e historial huérfanos | Alta | US-10 | Integración | Abierto |
-| [BUG-21](#bug-21) | Los JWT se firman con un secreto por defecto público y se pueden forjar | Alta | US-02, Seguridad | Manual (curl) | Abierto |
-| [BUG-22](#bug-22) | El listado de tareas tarda 25,6 s (p95) con 5.000 tareas y 20 usuarios | Alta | US-07, Rendimiento 1-3 | Performance (curl / k6) | Abierto |
-| [BUG-02](#bug-02) | Se aceptan contraseñas de 7 caracteres | Media | US-01, US-17 | Unitario | ✅ Resuelto |
-| [BUG-04](#bug-04) | Se aceptan fechas de vencimiento inexistentes (2026-02-30) | Media | US-16 | Unitario | Abierto |
-| [BUG-10](#bug-10) | La búsqueda distingue mayúsculas de minúsculas | Media | US-07 | Integración | Abierto |
-| [BUG-13](#bug-13) | Los comentarios se devuelven del más nuevo al más viejo | Media | US-08 | Integración | Abierto |
-| [BUG-17](#bug-17) | Las etiquetas no se normalizan y se duplican | Media | US-15 | Integración | Abierto |
-| [BUG-18](#bug-18) | Se pueden crear proyectos con nombre vacío o de menos de 3 caracteres | Media | US-03 | Integración (test existente) | ✅ Resuelto |
-| [BUG-19](#bug-19) | Un miembro ve los proyectos archivados | Media | US-04 | Integración | Abierto |
+| ID | Título | Severidad | Historia | Nivel del test | Estado | Issue |
+|----|--------|-----------|----------|----------------|--------|-------|
+| [BUG-06](#bug-06) | No se puede agregar ningún miembro a un proyecto | Crítica | US-11 | Contrato + E2E | ✅ Resuelto | — |
+| [BUG-07](#bug-07) | Cualquier usuario puede editar o borrar tareas de proyectos ajenos | Crítica | US-12, US-13 | Integración | ✅ Resuelto | — |
+| [BUG-09](#bug-09) | Inyección SQL en la búsqueda de tareas | Crítica | US-07 | Integración | Abierto | [#8](https://github.com/joaquinbauza/taskflow_2026_s2/issues/8) |
+| [BUG-14](#bug-14) | `forgot-password` revela si la cuenta existe y devuelve el token | Crítica | US-17 | Integración | Abierto | [#13](https://github.com/joaquinbauza/taskflow_2026_s2/issues/13) |
+| [BUG-15](#bug-15) | `reset-password` acepta tokens usados, invalidados o vencidos | Crítica | US-17 | Integración | Abierto | [#14](https://github.com/joaquinbauza/taskflow_2026_s2/issues/14) |
+| [BUG-08](#bug-08) | Un ex-miembro conserva sus tareas y puede seguir operándolas | Alta | US-11 | Integración | ⚠️ Parcial | [#7](https://github.com/joaquinbauza/taskflow_2026_s2/issues/7) |
+| [BUG-01](#bug-01) | Se permite pasar una tarea de TODO a DONE | Alta | US-06 | Unitario | Abierto | [#4](https://github.com/joaquinbauza/taskflow_2026_s2/issues/4) |
+| [BUG-03](#bug-03) | La fecha de vencimiento vuelve un día antes en UTC-3 | Alta | US-16 | Unitario | Abierto | [#2](https://github.com/joaquinbauza/taskflow_2026_s2/issues/2) |
+| [BUG-05](#bug-05) | Los filtros del listado de tareas no se combinan | Alta | US-07 | Unitario + Integración | Abierto | [#6](https://github.com/joaquinbauza/taskflow_2026_s2/issues/6) |
+| [BUG-11](#bug-11) | El listado de tareas no pagina | Alta | US-07 | Integración | Abierto | [#10](https://github.com/joaquinbauza/taskflow_2026_s2/issues/10) |
+| [BUG-12](#bug-12) | Al crear una tarea se puede forzar el estado (asignación masiva) | Alta | US-05 | Integración | Abierto | [#11](https://github.com/joaquinbauza/taskflow_2026_s2/issues/11) |
+| [BUG-16](#bug-16) | El contador de intentos fallidos no se reinicia tras un login exitoso | Alta | US-02 | Integración | Abierto | [#15](https://github.com/joaquinbauza/taskflow_2026_s2/issues/15) |
+| [BUG-20](#bug-20) | Borrar un proyecto deja comentarios e historial huérfanos | Alta | US-10 | Integración | Abierto | [#17](https://github.com/joaquinbauza/taskflow_2026_s2/issues/17) |
+| [BUG-21](#bug-21) | Los JWT se firman con un secreto por defecto público y se pueden forjar | Alta | US-02, Seguridad | Manual (curl) | Abierto | [#18](https://github.com/joaquinbauza/taskflow_2026_s2/issues/18) |
+| [BUG-22](#bug-22) | El listado de tareas tarda 25,6 s (p95) con 5.000 tareas y 20 usuarios | Alta | US-07, Rendimiento 1-3 | Performance (curl / k6) | Abierto | [#19](https://github.com/joaquinbauza/taskflow_2026_s2/issues/19) |
+| [BUG-02](#bug-02) | Se aceptan contraseñas de 7 caracteres | Media | US-01, US-17 | Unitario | ✅ Resuelto | — |
+| [BUG-04](#bug-04) | Se aceptan fechas de vencimiento inexistentes (2026-02-30) | Media | US-16 | Unitario | Abierto | [#5](https://github.com/joaquinbauza/taskflow_2026_s2/issues/5) |
+| [BUG-10](#bug-10) | La búsqueda distingue mayúsculas de minúsculas | Media | US-07 | Integración | Abierto | [#9](https://github.com/joaquinbauza/taskflow_2026_s2/issues/9) |
+| [BUG-13](#bug-13) | Los comentarios se devuelven del más nuevo al más viejo | Media | US-08 | Integración | Abierto | [#12](https://github.com/joaquinbauza/taskflow_2026_s2/issues/12) |
+| [BUG-17](#bug-17) | Las etiquetas no se normalizan y se duplican | Media | US-15 | Integración | Abierto | [#3](https://github.com/joaquinbauza/taskflow_2026_s2/issues/3) |
+| [BUG-18](#bug-18) | Se pueden crear proyectos con nombre vacío o de menos de 3 caracteres | Media | US-03 | Integración (test existente) | ✅ Resuelto | — |
+| [BUG-19](#bug-19) | Un miembro ve los proyectos archivados | Media | US-04 | Integración | Abierto | [#16](https://github.com/joaquinbauza/taskflow_2026_s2/issues/16) |
 
 Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutilizable; **Alta** = incumple una regla de negocio o pierde/corrompe datos; **Media** = incumple un criterio de aceptación sin pérdida de datos.
 
@@ -127,7 +127,7 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Pasos:** `PATCH /tasks/task-1` con `{ "dueDate": "2026-09-15" }`; luego `GET /tasks/task-1`.
 - **Esperado:** `dueDate: "2026-09-15"`.
 - **Obtenido:** `dueDate: "2026-09-14"`. En UTC o al este de UTC funciona, por eso puede pasar inadvertido en CI.
-- **Test:** `server/tests/unit/ids.test.ts › [BUG-03]` (corre la conversión en un proceso con `TZ=America/Montevideo`), `server/tests/tareas.integration.test.ts › la fecha devuelta es la misma…` y E2E `e2e/tests/e2e/us-16-vencimiento.spec.ts` (3 casos con `test.fail`: detalle, tablero y fecha pasada). Issue: [ISSUE-01](issues/ISSUE-01-fecha-vencimiento-un-dia-antes.md).
+- **Test:** `server/tests/unit/ids.test.ts › [BUG-03]` (corre la conversión en un proceso con `TZ=America/Montevideo`), `server/tests/tareas.integration.test.ts › la fecha devuelta es la misma…` y E2E `e2e/tests/e2e/us-16-vencimiento.spec.ts` (3 casos con `test.fail`: detalle, tablero y fecha pasada). Issue: [ISSUE-01](issues/ISSUE-01-fecha-vencimiento-un-dia-antes.md) (GitHub [#2](https://github.com/joaquinbauza/taskflow_2026_s2/issues/2)).
 - **Causa probable:** `ids.ts:38` crea la fecha a medianoche UTC (`new Date('2026-09-15')`) y `ids.ts:44-46` la formatea con `getFullYear/getMonth/getDate` en hora local. Usar los métodos `getUTC*`.
 
 ### BUG-05
@@ -185,7 +185,7 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Pasos:** firmar `{ userId: 1, email: 'ana@test.com' }` con `'taskflow-dev-secret'` y llamar a `GET /api/projects` con ese token.
 - **Esperado:** HTTP 401.
 - **Obtenido:** HTTP 200 con los proyectos de ana: suplantación de cualquier usuario.
-- **Test:** manual, `docs/evidencias/seguridad/pruebas-api.md` (sección 5). Issue: [ISSUE-17](issues/ISSUE-17-secreto-jwt-por-defecto.md).
+- **Test:** manual, `docs/evidencias/seguridad/pruebas-api.md` (sección 5). Issue: [ISSUE-17](issues/ISSUE-17-secreto-jwt-por-defecto.md) (GitHub [#18](https://github.com/joaquinbauza/taskflow_2026_s2/issues/18)).
 - **Causa probable:** `middleware/auth.ts:5` — `process.env.JWT_SECRET ?? 'taskflow-dev-secret'`.
 
 ### BUG-22
@@ -195,7 +195,7 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Pasos:** `k6 run -e VUS=20 -e DURATION=1m performance/scenarios/api-load.k6.js`.
 - **Esperado:** p95 ≤ 500 ms, respuesta paginada.
 - **Obtenido:** p95 25.590 ms con 20 VUs (0 % de errores, 0,81 iteraciones/s), 1,86 MB por respuesta; con 1 usuario (curl) p95 5.633 ms. Con la seed chica, p95 17,68 ms.
-- **Test:** `performance/scenarios/api-load.k6.js` (threshold `p(95)<500`); salidas en `docs/evidencias/k6-seed-chica.txt` y `k6-seed-grande.txt`. Issue: [ISSUE-18](issues/ISSUE-18-listado-tareas-lento-con-volumen.md). Detalle en [`performance.md`](performance.md).
+- **Test:** `performance/scenarios/api-load.k6.js` (threshold `p(95)<500`); salidas en `docs/evidencias/k6-seed-chica.txt` y `k6-seed-grande.txt`. Issue: [ISSUE-18](issues/ISSUE-18-listado-tareas-lento-con-volumen.md) (GitHub [#19](https://github.com/joaquinbauza/taskflow_2026_s2/issues/19)). Detalle en [`performance.md`](performance.md).
 - **Causa probable:** BUG-11 (no pagina) + N+1 en `tasks.controller.ts:35-43` (2 consultas por tarea → ~10.001 por request).
 
 ## Medios
@@ -243,7 +243,7 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Pasos:** `POST /tasks/task-1/tags` con `"  Backend "`; con `"bug"` dos veces; con `"bug"` y `"BUG"`.
 - **Esperado:** se guarda `backend`; el segundo `bug` responde 200 sin duplicar; `BUG` es la misma etiqueta que `bug`.
 - **Obtenido:** se guarda `Backend`; el segundo `bug` responde 201 y la tarea queda con dos `bug`; `BUG` se crea como etiqueta aparte.
-- **Test:** `server/tests/bugs.test.ts › BUG-17` (3 tests) y E2E `e2e/tests/e2e/us-15-etiquetas.spec.ts` (US-15 c1, c2 y c3 con `test.fail`). Issue: [ISSUE-02](issues/ISSUE-02-etiquetas-no-normalizadas.md).
+- **Test:** `server/tests/bugs.test.ts › BUG-17` (3 tests) y E2E `e2e/tests/e2e/us-15-etiquetas.spec.ts` (US-15 c1, c2 y c3 con `test.fail`). Issue: [ISSUE-02](issues/ISSUE-02-etiquetas-no-normalizadas.md) (GitHub [#3](https://github.com/joaquinbauza/taskflow_2026_s2/issues/3)).
 - **Causa probable:** `tasks.service.ts:187-190` — no se pasa el nombre a minúsculas y no se controla si la tarea ya tiene la etiqueta (`task_tags` tampoco tiene índice único).
 
 ### BUG-18

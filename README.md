@@ -287,7 +287,7 @@ taskflow/
 | Documento | Contenido |
 |---|---|
 | [`bugs.md`](docs/bugs.md) | Reporte de bugs (BUG-01 a BUG-22) con estado y tests |
-| [`issues/`](docs/issues/) | Issues en formato de plantilla (ISSUE-01 a ISSUE-18), para cargar en GitHub |
+| [`issues/`](docs/issues/) | Issues en formato de plantilla (ISSUE-01 a ISSUE-18), cargados en GitHub como [#2 a #19](https://github.com/joaquinbauza/taskflow_2026_s2/issues) con etiqueta de severidad (`critica`, `alta`, `media`, `baja`); ISSUE-NN es el #NN+1 |
 | [`adr/ADR-001-…`](docs/adr/ADR-001-arquitectura-testing-playwright.md) | Arquitectura del framework de Playwright |
 | [`e2e-us-12-14-15-16.md`](docs/e2e-us-12-14-15-16.md) | Trazabilidad y mutaciones de los E2E de US-12/14/15/16 |
 | [`pact.md`](docs/pact.md) | Contract testing con Pact, evidencia de ruptura |
