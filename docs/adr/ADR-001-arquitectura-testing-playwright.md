@@ -41,21 +41,23 @@ Se construye un framework de testing con **Playwright + TypeScript** en una carp
 ```
 e2e/
 ├── config/            # constantes y lectura del .env
-├── fixtures/          # loggedInPage, apiContext, seedProject
+├── fixtures/          # apiContext, auth, owner, seedProject, loggedInPage y los Page Objects
 ├── page-objects/      # LoginPage, ProjectsPage, BoardPage, TaskDetailPage, MembersPage
 ├── components/        # TaskCard, CommentItem, MemberItem, AppHeader
 ├── api/
-│   ├── clients/       # AuthClient, ProjectsClient, TasksClient, CommentsClient
-│   └── schemas/       # forma esperada de cada respuesta
+│   ├── clients/       # AuthClient, ProjectsClient, TasksClient, CommentsClient (preparan datos)
+│   └── schemas/       # forma esperada de user/project/task/error (hoy ningún spec lo importa)
 ├── tests/
 │   ├── e2e/           # flujos por UI (Arrange por API con fixtures, Act y Assert por UI)
 │   └── a11y.spec.ts   # auditoría de accesibilidad con axe-core
 ├── test-data/         # factories (usuario, proyecto, tarea)
 ├── global-setup.ts    # crea la base SQLite propia de E2E (e2e/.tmp/e2e.db)
 └── .env.example
+
+playwright.config.ts   # en la raíz del repo (lo usa `npm run test:e2e`)
 ```
 
-> **Implementación (actualizado 16/11/2026).** `playwright.config.ts` quedó en la raíz del repo (lo usa `npm run test:e2e`). No se crearon `tests/api/` ni `utils/`: el contrato de la API ya lo cubren Jest + Supertest (`server/tests/`) y Pact (`server/contract-tests/`, ver `docs/pact.md`), así que duplicarlo en Playwright no aporta. Todos los tests de `tests/e2e/` son híbridos en el sentido de §2.5.
+> **Implementación (actualizado 17/11/2026).** El árbol de arriba es exactamente el de `e2e/`. Playwright **no** tiene tests de API propios: el contrato de la API lo cubren Jest + Supertest y Pact (ver §2.6). Todos los specs de `tests/e2e/` son híbridos en el sentido de §2.5 y `tests/a11y.spec.ts` es la auditoría de accesibilidad.
 
 **Por qué "por capa" y no "por feature":** las features de TaskFlow comparten piezas de UI y de API. El header aparece en todas las pantallas, y el login y la creación de proyecto los necesitan casi todos los tests. Con una estructura por feature esas piezas quedarían duplicadas, o en una carpeta "común" que termina siendo la estructura por capa igual. Una estructura plana deja de servir apenas la suite crece.
 
@@ -106,16 +108,16 @@ El formulario de login se prueba **una sola vez**, en `tests/e2e/login.spec.ts`.
 
 **Por qué:** el login por UI tarda unos 3 s por test y por API unos 0,2 s. En una suite de 200 tests eso es ≈10 min contra ≈40 s. La UI renderiza, ejecuta JS y hace requests para lograr un efecto que **no es lo que se está probando**.
 
-### 2.6 Tests de API: validar el contrato completo
+### 2.6 Contrato de la API: Jest + Supertest y Pact, no Playwright
 
-Los tests en `tests/api/` validan, para cada endpoint:
+El contrato de la API **no** se prueba con Playwright. Lo cubren dos suites del backend:
 
-- el **status exacto** (por ejemplo `201`, no solo `ok()`);
-- el header `Content-Type`;
-- la **forma del body** contra un schema de `api/schemas/`, incluyendo el formato de error `{ error: { code, message, details } }`;
-- **casos negativos** con los códigos documentados: `VALIDATION_ERROR` 400, `UNAUTHORIZED` 401, `FORBIDDEN` 403, `NOT_FOUND` 404, `CONFLICT` 409 e `INVALID_TRANSITION` 422.
+- **Jest + Supertest** (`server/tests/`, `npm test`): tests de integración contra la app Express real (`createApp()`) con una base SQLite por archivo de test. Verifican el **status exacto**, la forma del body y los casos negativos con el formato de error `{ error: { code, message, details } }` (`VALIDATION_ERROR` 400, `UNAUTHORIZED` 401, `FORBIDDEN` 403, `NOT_FOUND` 404, `CONFLICT` 409, `INVALID_TRANSITION` 422). En `server/tests/contract/` está además el verificador de contrato casero (`client/src/contracts/api.contract.ts`).
+- **Pact** (`server/contract-tests/`, `npm run test:pact`, detalle en `docs/pact.md`): el consumer `TaskFlowWeb` genera `server/pacts/TaskFlowWeb-TaskFlowAPI.json` y el provider verifica ese contrato contra la API real.
 
-**Por qué:** un test que solo mira el status deja pasar respuestas con la forma incorrecta. Los clients de `api/clients/` se reutilizan en los fixtures, así que no hay dos formas distintas de llamar a la API.
+En Playwright, `e2e/api/clients/` (`AuthClient`, `ProjectsClient`, `TasksClient`, `CommentsClient`) se usa **solo para preparar datos** en los fixtures (§2.4 y §2.5): registrar el usuario, crear proyectos, tareas, miembros, etiquetas y comentarios. `esperar()` exige el status esperado de cada llamada para que un setup roto falle en el Arrange y no en el Assert. `e2e/api/schemas/` tiene la forma de las respuestas, pero hoy ningún spec lo importa.
+
+**Por qué:** probar el contrato con Jest y Pact es más rápido (sin navegador ni Vite), corre en cada `npm test` y en el job `pact` de CI, y deja a Playwright lo que solo él puede probar: la UI. Duplicar los mismos casos en Playwright sería pagar dos veces por la misma cobertura. Como los fixtures usan siempre los mismos clients, no hay dos formas distintas de llamar a la API dentro de `e2e/`.
 
 ### 2.7 Locators: `data-testid` primero
 
@@ -125,8 +127,8 @@ Orden de preferencia: `getByTestId` → `getByRole` / `getByLabel` → `getByTex
 
 ### 2.8 Configuración por ambiente
 
-- `.env.dev`, `.env.staging`… se eligen con `TEST_ENV`. Contienen `BASE_URL` (`http://localhost:5173`), `API_URL` (`http://localhost:3000/api`), `TEST_USER_EMAIL` y `TEST_USER_PASSWORD`.
-- Se commitea **`.env.example`** con las keys vacías. Los `.env` reales ya están en el `.gitignore` del repo.
+- `e2e/config/env.ts` lee `e2e/.env` o, si se define `TEST_ENV`, `e2e/.env.<TEST_ENV>` (por ejemplo `TEST_ENV=staging` → `e2e/.env.staging`); las variables del proceso tienen prioridad. Las keys son `BASE_URL` (`http://localhost:5173`), `API_URL` (`http://localhost:3000/api`), `TEST_USER_PASSWORD` y `TEST_TIMEZONE` (`America/Montevideo`), con esos valores por defecto. No hay email de usuario fijo: cada test registra el suyo (§2.5).
+- Se commitea **`e2e/.env.example`** con las keys vacías. Los `.env` reales ya están en el `.gitignore` del repo.
 - Ningún test tiene URLs ni credenciales escritas a mano.
 
 ### 2.9 Robustez en CI
@@ -167,12 +169,12 @@ reporter: [['list'], ['html', { open: 'never' }], ['junit', { outputFile: 'resul
 - Los tests se leen como una historia: `boardPage.card('Diseñar logo').moveTo('DONE')`.
 - La suite es rápida, porque el setup va por API. Los tests son independientes (cada uno crea y borra sus datos), así que se podrían paralelizar el día que haya una base por worker; hoy corren en serie (§2.9).
 - Cuando algo falla en CI quedan traces y reportes para investigar.
-- El mismo framework cubre tests de API, E2E e híbridos.
+- Playwright se concentra en la UI (E2E híbridos y accesibilidad); el contrato de la API queda en Jest + Supertest y Pact (§2.6), que son más rápidos y no necesitan navegador.
 
 ### Negativas / riesgos
 
 - **Hay más archivos y más indirección** que en una suite plana. Alguien nuevo en el equipo tiene que entender fixtures y la composición POM + COM antes de escribir un test.
-- **Los tests de UI dependen de que la API de login y de creación funcione.** Si `/auth/login` se rompe, fallan casi todos los tests. Se mitiga con el test de API de login, que falla primero y deja claro el origen.
+- **Los tests de UI dependen de que la API de login y de creación funcione.** Si `/auth/login` se rompe, fallan casi todos los tests. Se mitiga con los tests de `server/tests/` (`npm test`, job propio en CI), que señalan el endpoint roto sin pasar por la UI, y con `esperar()` en los clients: si el setup por API falla, el test cae en el fixture con el status recibido y queda claro el origen.
 - **Hay acoplamiento a los `data-testid`.** Si alguien los cambia o los saca del front, se rompen los locators. Igual se corrigen en un solo lugar.
 - **Los datos tienen que estar aislados.** Cada test crea sus propios datos con nombres únicos y los limpia. Si no, el paralelismo genera flakiness.
 - La base SQLite es compartida. Los tests no dependen de los datos del seed (la base E2E no tiene seed): cada uno registra su propio usuario.
@@ -184,4 +186,6 @@ reporter: [['list'], ['html', { open: 'never' }], ['junit', { outputFile: 'resul
 - `client/src/lib/api.ts`: dónde se guarda la sesión en `localStorage`.
 - `client/src/pages/*.tsx`: `data-testid` de cada pantalla.
 - `README.md`: endpoints, códigos de error y usuarios de prueba.
+- `server/tests/` y `server/contract-tests/` + `docs/pact.md`: contrato de la API (§2.6).
+- `e2e/api/clients/index.ts`, `e2e/fixtures/index.ts`, `e2e/config/env.ts`, `playwright.config.ts`.
 - Clase 6: "Arquitectura y Patrones de Diseño para Frameworks de Testing con Playwright".
