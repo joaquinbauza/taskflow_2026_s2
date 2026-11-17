@@ -6,6 +6,15 @@ Adaptación de la guía: `apps/api` → `server/` (puerto 3000, prefijo `/api`),
 
 Evidencia: [`evidencias/seguridad/pruebas-api.md`](evidencias/seguridad/pruebas-api.md) (cada comando con su expectativa escrita antes y la respuesta HTTP real), script reproducible [`pruebas-api.sh`](evidencias/seguridad/pruebas-api.sh), salidas de `npm audit` en [`evidencias/seguridad/`](evidencias/seguridad/), informe axe en [`evidencias/a11y-informe.txt`](evidencias/a11y-informe.txt) y verificación de la corrección en [`a11y-verificacion-antes.txt`](evidencias/a11y-verificacion-antes.txt) / [`a11y-verificacion-despues.txt`](evidencias/a11y-verificacion-despues.txt).
 
+## Herramientas
+
+| Herramienta | Versión | Para qué | Evidencia |
+|---|---|---|---|
+| `npm audit` | npm 10 (Node 22.23.5) | Dependencias con vulnerabilidades conocidas (raíz, `server/`, `client/`) | [`evidencias/seguridad/npm-audit*.txt`](evidencias/seguridad/) |
+| `curl` + [`pruebas-api.sh`](evidencias/seguridad/pruebas-api.sh) | curl 8 (Git Bash) | Pruebas manuales de la API: headers, CORS, IDOR, inyección SQL, XSS, JWT, fuerza bruta | [`pruebas-api.md`](evidencias/seguridad/pruebas-api.md) |
+| **OWASP ZAP** (baseline scan) | **2.17.0** (imagen `ghcr.io/zaproxy/zaproxy:stable`) | Escaneo pasivo y sin autenticar del front y de la API | [`zap-baseline-web.html`](evidencias/seguridad/zap-baseline-web.html) / [`.json`](evidencias/seguridad/zap-baseline-web.json), [`zap-baseline-api.html`](evidencias/seguridad/zap-baseline-api.html) / [`.json`](evidencias/seguridad/zap-baseline-api.json), salida de consola en `zap-baseline-*.txt` |
+| `@axe-core/playwright` | 4.14 | Accesibilidad automática (WCAG 2.1 A/AA) | [`evidencias/a11y-informe.txt`](evidencias/a11y-informe.txt) |
+
 ## Análisis de dependencias (`npm audit`)
 
 | Alcance | Resultado | HIGH/CRITICAL | ¿Afecta producción? |
@@ -66,6 +75,67 @@ Conclusión: sí hay 2+ vulnerabilidades HIGH/CRITICAL. Las de la raíz son de d
 - **Headers:** `X-Powered-By: Express` presente; faltan `Content-Security-Policy`, `X-Frame-Options`, `X-Content-Type-Options`, `Strict-Transport-Security` (no hay `helmet`). **CORS** `Access-Control-Allow-Origin: *` incluso para `Origin: https://evil.example` (mitigado porque el token va en header, no en cookie).
 - **Fuerza bruta:** la cuenta se bloquea a los 5 fallos (control que funciona), pero **no hay rate limit por IP**: 30 logins seguidos a cuentas distintas responden 401, nunca 429 → enumeración/credential stuffing distribuido sin freno. Además el bloqueo por cuenta permite bloquear a propósito a un usuario (DoS dirigido).
 - **XSS almacenado:** `<img src=x onerror=alert(1)>` se guarda tal cual en título y comentario (201). En el front **no se ejecuta**: React escapa el texto en JSX y no hay `dangerouslySetInnerHTML`/`innerHTML` en `client/src` (revisado por código). Riesgo latente si otro consumidor renderiza HTML.
+
+## Escaneo OWASP ZAP (baseline)
+
+**Herramienta:** OWASP ZAP **2.17.0**, imagen Docker `ghcr.io/zaproxy/zaproxy:stable`, script `zap-baseline.py` (spider tradicional de 1 minuto + reglas **pasivas**; no envía ataques y no se autentica). Fecha: 17/11/2026, Docker 28.3.3 (Docker Desktop) sobre Windows 11.
+
+**Preparación.** `npm run db:setup` (base nueva con seed), API con `npm run dev:server` y front con `npm --prefix client run dev -- --host 0.0.0.0`. El `--host` hace falta porque Vite, por defecto, escucha solo en `[::1]` y el contenedor llega al host por `host.docker.internal`. La API ya escucha en `0.0.0.0:3000`.
+
+**Comandos exactos** (PowerShell, desde la raíz del repo):
+
+```powershell
+docker run --rm -v "${PWD}/docs/evidencias/seguridad:/zap/wrk" -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://host.docker.internal:5173 -r zap-baseline-web.html -J zap-baseline-web.json -I
+docker run --rm -v "${PWD}/docs/evidencias/seguridad:/zap/wrk" -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://host.docker.internal:3000/api/projects -r zap-baseline-api.html -J zap-baseline-api.json -I
+```
+
+`-I` hace que las advertencias no den exit ≠ 0. La salida de consola de cada corrida está en `zap-baseline-web.txt` y `zap-baseline-api.txt`.
+
+**URLs escaneadas.** Front: `http://host.docker.internal:5173` (7 URLs; el spider de una SPA solo ve `/`, `/@vite/client`, `/src/main.tsx`, `robots.txt` y `sitemap.xml`). API: `http://host.docker.internal:3000/api/projects` (6 URLs: `/api/projects` responde 401 sin token; `/`, `/api`, `robots.txt` y `sitemap.xml` responden 404).
+
+**Resultado:** 0 FAIL. Front: **8 reglas en WARN** (10 alertas en el reporte, porque la regla 90004 se reporta por separado para COEP y COOP). API: **3 reglas en WARN** (4 alertas: la regla 10049 aparece en dos variantes). 60 y 65 reglas pasivas en PASS.
+
+#### Alertas del front (`:5173`, servidor de desarrollo de Vite)
+
+| Alerta (id) | Riesgo (confianza) | Cantidad | URL de ejemplo |
+|---|---|---|---|
+| Content Security Policy (CSP) Header Not Set (10038) | Medium (High) | 3 | `http://host.docker.internal:5173` |
+| Cross-Domain Misconfiguration (10098): `Access-Control-Allow-Origin: *` | Medium (Medium) | 5 | `http://host.docker.internal:5173/src/main.tsx` |
+| Missing Anti-clickjacking Header (10020) | Medium (Medium) | 3 | `http://host.docker.internal:5173` |
+| Cross-Origin-Embedder-Policy Header Missing or Invalid (90004) | Low (Medium) | 3 | `http://host.docker.internal:5173` |
+| Cross-Origin-Opener-Policy Header Missing or Invalid (90004) | Low (Medium) | 3 | `http://host.docker.internal:5173` |
+| Permissions Policy Header Not Set (10063) | Low (Medium) | 5 | `http://host.docker.internal:5173/@vite/client` |
+| X-Content-Type-Options Header Missing (10021) | Low (Medium) | 5 | `http://host.docker.internal:5173/src/main.tsx` |
+| Modern Web Application (10109) | Informational (Medium) | 3 | `http://host.docker.internal:5173` |
+| Storable but Non-Cacheable Content (10049) | Informational (Medium) | 5 | `http://host.docker.internal:5173` |
+
+#### Alertas de la API (`:3000`)
+
+| Alerta (id) | Riesgo (confianza) | Cantidad | URL de ejemplo |
+|---|---|---|---|
+| Cross-Domain Misconfiguration (10098): `Access-Control-Allow-Origin: *` | Medium (Medium) | 4 | `http://host.docker.internal:3000/api/projects` |
+| Server Leaks Information via "X-Powered-By" HTTP Response Header Field(s) (10037): `X-Powered-By: Express` | Low (Medium) | 5 | `http://host.docker.internal:3000/api/projects` |
+| Non-Storable Content (10049) | Informational (Medium) | 1 | `http://host.docker.internal:3000/api/projects` (401) |
+| Storable and Cacheable Content (10049) | Informational (Medium) | 4 | `http://host.docker.internal:3000/api` (404) |
+
+#### Cruce hallazgo ZAP ↔ prueba con curl / SEC-xx
+
+| Hallazgo | ZAP | curl ([`pruebas-api.md`](evidencias/seguridad/pruebas-api.md)) | Comentario |
+|---|---|---|---|
+| `X-Powered-By: Express` | ✅ API (10037) | ✅ §2 "Headers de /api/health" | Lo vieron los dos. En el front no aparece: Vite no manda ese header |
+| CORS `Access-Control-Allow-Origin: *` | ✅ API y front (10098) | ✅ §2 "CORS desde un origen ajeno" (`Origin: https://evil.example` recibe `*`) | Coinciden en la API. Sobre el front solo lo vio ZAP (es el servidor de desarrollo de Vite) |
+| Faltan CSP, `X-Frame-Options` y `X-Content-Type-Options` | ✅ solo en el **front** (10038, 10020, 10021) | ✅ en la **API** (§2) | Se complementan: curl miró la API y ZAP los encontró en el front. ZAP no los marca en la API porque 10038 y 10020 solo evalúan respuestas HTML y 10021 ignora las respuestas 4xx/5xx (todo lo que la API le devolvió sin token fue 401 o 404). El arreglo es el mismo: `helmet` en Express y headers en el servidor que sirva el build del front |
+| Falta `Strict-Transport-Security` | ❌ | ✅ §2 (anotado "en prod con TLS") | ZAP solo evalúa HSTS (regla 10035) sobre HTTPS, y el entorno local es HTTP |
+| Faltan `Permissions-Policy`, COEP y COOP | ✅ solo ZAP (10063, 90004) | ❌ | curl no los buscaba. Riesgo bajo: endurecimiento del navegador |
+| Cache-Control de las respuestas (10049) y "Modern Web Application" (10109) | ✅ solo ZAP (informativos) | ❌ | No son vulnerabilidades; 10109 avisa que un spider tradicional no recorre bien una SPA |
+| **SEC-01** inyección SQL en `search` | ❌ | ✅ §4 | Necesita token y enviar un payload: el baseline es **pasivo** (no ataca) y **no está autenticado** (todo `/api/projects/*` le dio 401) |
+| IDOR (control 4.2) | ❌ | ✅ §3 (verificado: 403/404) | Necesita dos usuarios autenticados y comparar sus permisos: fuera del alcance de un escaneo sin sesión |
+| **SEC-02** JWT forjado con el secreto por defecto; `alg: none`, firma alterada y vencido | ❌ | ✅ §5 | Requiere conocer el código (el secreto está en el repo) y armar tokens; un escaneo pasivo no genera tokens |
+| XSS almacenado (no se ejecuta en el front) | ❌ | ✅ §4 | Requiere crear tareas y comentarios autenticado |
+| Fuerza bruta / sin rate limit por IP | ❌ | ✅ §6 | Requiere enviar muchos logins; el baseline no lo hace |
+| BUG-14 / BUG-15 (forgot / reset password) | ❌ | Tests de integración (`server/tests/bugs.test.ts`) | Requieren POST con cuerpos específicos; el spider no envía datos a la API |
+
+**Conclusión.** ZAP confirmó de forma automática y reproducible los problemas de configuración (headers y CORS) que curl había encontrado a mano, y agregó los del front y tres headers de endurecimiento que no se habían revisado. Los dos hallazgos más graves (SEC-01 y SEC-02) no los puede ver un baseline, porque es un escaneo pasivo sobre lo que el spider encuentra sin sesión. Para cubrirlos con ZAP haría falta un *full scan* (reglas activas) con un contexto autenticado (header `Authorization: Bearer`) y la definición OpenAPI de la API; aun así, el JWT con secreto por defecto y el IDOR se detectan mejor con pruebas dirigidas como las de curl. Los resultados del front corresponden al servidor de desarrollo de Vite: el build de producción tendrá los headers que le ponga el servidor que lo sirva.
 
 ## 4.2 Control verificado: autorización por membresía (IDOR) y validación del JWT
 
@@ -132,6 +202,7 @@ Criterios de aceptación (testeables):
 - [x] `npm audit` y `npm audit --omit=dev` analizados (raíz, server, client) con impacto en producción.
 - [x] Tokens de ana y bob obtenidos con `curl` a `/api/auth/login`.
 - [x] Headers de seguridad y CORS revisados con `curl -I`.
+- [x] OWASP ZAP 2.17.0 baseline contra el front (`:5173`) y la API (`:3000/api/projects`); reportes HTML y JSON en `docs/evidencias/seguridad/` y hallazgos cruzados con los de curl.
 - [x] Control de acceso (IDOR) probado con dos usuarios sobre proyectos, tareas y comentarios.
 - [x] Inyecciones (SQL, XSS almacenado), JWT manipulado (`alg: none`, firma alterada, vencido) y fuerza bruta, con la expectativa escrita antes.
 - [x] 2 hallazgos de seguridad (SEC-01, SEC-02) con todos los campos + 1 control verificado.
