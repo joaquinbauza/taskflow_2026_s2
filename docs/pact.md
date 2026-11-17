@@ -50,7 +50,7 @@ Decisiones:
 
 Cambio en `server/src/modules/projects/projects.controller.ts`, dentro de `serialize`: `name: p.name` → `title: p.name`.
 
-Salida completa: [`evidencias/pact-ruptura.txt`](evidencias/pact-ruptura.txt). Resultado:
+Salida completa: [`evidencias/pact-ruptura.txt`](evidencias/pact-ruptura.txt). Capturas: [`evidencias/pact-ruptura.png`](evidencias/pact-ruptura.png) (la interacción en `FAILED`) y [`evidencias/pact-ruptura-detalle.png`](evidencias/pact-ruptura-detalle.png) (`missing the following keys: name`). Resultado:
 
 ```
   un GET a /api/projects (1ms loading, 102ms verification)
