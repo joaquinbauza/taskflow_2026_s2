@@ -1,0 +1,165 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Caracterización · comentarios GET /tasks/:id/comments: forma y orden de la lista 1`] = `
+{
+  "body": [
+    {
+      "authorId": "user-2",
+      "body": "tercero",
+      "createdAt": "<fecha ISO>",
+      "id": "comment-7",
+      "taskId": "task-2",
+    },
+    {
+      "authorId": "user-2",
+      "body": "segundo",
+      "createdAt": "<fecha ISO>",
+      "id": "comment-6",
+      "taskId": "task-2",
+    },
+    {
+      "authorId": "user-2",
+      "body": "primero",
+      "createdAt": "<fecha ISO>",
+      "id": "comment-5",
+      "taskId": "task-2",
+    },
+  ],
+  "status": 200,
+}
+`;
+
+exports[`Caracterización · comentarios POST /tasks/:id/comments con distintos cuerpos 1`] = `
+{
+  "[]": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Comment body must be between 1 and 1000 characters",
+      },
+    },
+    "status": 400,
+  },
+  "{"body":"    "}": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Comment body must be between 1 and 1000 characters",
+      },
+    },
+    "status": 400,
+  },
+  "{"body":"   recortado   "}": {
+    "body": {
+      "authorId": "user-1",
+      "body": ""recortado"",
+      "createdAt": "<fecha ISO>",
+      "id": "comment-2",
+      "taskId": "task-1",
+    },
+    "status": 201,
+  },
+  "{"body":""}": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Comment body must be between 1 and 1000 characters",
+      },
+    },
+    "status": 400,
+  },
+  "{"body":"Comentario normal"}": {
+    "body": {
+      "authorId": "user-1",
+      "body": ""Comentario normal"",
+      "createdAt": "<fecha ISO>",
+      "id": "comment-1",
+      "taskId": "task-1",
+    },
+    "status": 201,
+  },
+  "{"body":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}": {
+    "body": {
+      "authorId": "user-1",
+      "body": ""aaa…" (1000 caracteres)",
+      "createdAt": "<fecha ISO>",
+      "id": "comment-4",
+      "taskId": "task-1",
+    },
+    "status": 201,
+  },
+  "{"body":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Comment body must be between 1 and 1000 characters",
+      },
+    },
+    "status": 400,
+  },
+  "{"body":"x"}": {
+    "body": {
+      "authorId": "user-1",
+      "body": ""x"",
+      "createdAt": "<fecha ISO>",
+      "id": "comment-3",
+      "taskId": "task-1",
+    },
+    "status": 201,
+  },
+  "{"body":123}": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Comment body must be between 1 and 1000 characters",
+      },
+    },
+    "status": 400,
+  },
+  "{"body":["lista"]}": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Comment body must be between 1 and 1000 characters",
+      },
+    },
+    "status": 400,
+  },
+  "{"body":null}": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Comment body must be between 1 and 1000 characters",
+      },
+    },
+    "status": 400,
+  },
+  "{"texto":"campo equivocado"}": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Comment body must be between 1 and 1000 characters",
+      },
+    },
+    "status": 400,
+  },
+  "{}": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Comment body must be between 1 and 1000 characters",
+      },
+    },
+    "status": 400,
+  },
+}
+`;

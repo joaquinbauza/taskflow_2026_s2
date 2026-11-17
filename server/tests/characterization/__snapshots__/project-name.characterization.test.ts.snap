@@ -1,0 +1,154 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Caracterización · nombre de proyecto POST /projects y PATCH /projects/:id con los mismos nombres 1`] = `
+{
+  "crear": {
+    ""   "": {
+      "body": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": [],
+          "message": "name must be between 3 and 100 characters",
+        },
+      },
+      "status": 400,
+    },
+    ""  abc  "": {
+      "name": ""abc"",
+      "status": 201,
+    },
+    """": {
+      "body": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": [],
+          "message": "name must be between 3 and 100 characters",
+        },
+      },
+      "status": 400,
+    },
+    ""aaa…" (100 caracteres)": {
+      "name": ""aaa…" (100 caracteres)",
+      "status": 201,
+    },
+    ""aaa…" (101 caracteres)": {
+      "body": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": [],
+          "message": "name must be between 3 and 100 characters",
+        },
+      },
+      "status": 400,
+    },
+    ""ab"": {
+      "body": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": [],
+          "message": "name must be between 3 and 100 characters",
+        },
+      },
+      "status": 400,
+    },
+    ""abc"": {
+      "name": ""abc"",
+      "status": 201,
+    },
+    "123": {
+      "body": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": [],
+          "message": "name must be between 3 and 100 characters",
+        },
+      },
+      "status": 400,
+    },
+    "null": {
+      "body": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": [],
+          "message": "name must be between 3 and 100 characters",
+        },
+      },
+      "status": 400,
+    },
+  },
+  "editar": {
+    ""   "": {
+      "body": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": [],
+          "message": "name must be between 3 and 100 characters",
+        },
+      },
+      "status": 400,
+    },
+    ""  abc  "": {
+      "name": ""abc"",
+      "status": 200,
+    },
+    """": {
+      "body": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": [],
+          "message": "name must be between 3 and 100 characters",
+        },
+      },
+      "status": 400,
+    },
+    ""aaa…" (100 caracteres)": {
+      "name": ""aaa…" (100 caracteres)",
+      "status": 200,
+    },
+    ""aaa…" (101 caracteres)": {
+      "body": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": [],
+          "message": "name must be between 3 and 100 characters",
+        },
+      },
+      "status": 400,
+    },
+    ""ab"": {
+      "body": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": [],
+          "message": "name must be between 3 and 100 characters",
+        },
+      },
+      "status": 400,
+    },
+    ""abc"": {
+      "name": ""abc"",
+      "status": 200,
+    },
+    "123": {
+      "body": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": [],
+          "message": "name must be between 3 and 100 characters",
+        },
+      },
+      "status": 400,
+    },
+    "null": {
+      "body": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": [],
+          "message": "name must be between 3 and 100 characters",
+        },
+      },
+      "status": 400,
+    },
+  },
+}
+`;

@@ -1,0 +1,397 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Caracterización · tareas: asignado y cambio de estado assigneeId al crear y al editar 1`] = `
+{
+  "crear": {
+    "formato inválido": {
+      "body": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": [],
+          "message": "assigneeId must be a valid user id",
+        },
+      },
+      "status": 400,
+    },
+    "id de proyecto": {
+      "body": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": [],
+          "message": "assigneeId must be a valid user id",
+        },
+      },
+      "status": 400,
+    },
+    "id inexistente": {
+      "body": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": [],
+          "message": "The assignee must be a member of the project",
+        },
+      },
+      "status": 400,
+    },
+    "miembro": {
+      "assignee": ""user-3"",
+      "status": 201,
+    },
+    "null": {
+      "assignee": "null",
+      "status": 201,
+    },
+    "número": {
+      "assignee": ""user-1"",
+      "status": 201,
+    },
+    "omitido": {
+      "assignee": "null",
+      "status": 201,
+    },
+    "owner": {
+      "assignee": ""user-1"",
+      "status": 201,
+    },
+    "usuario no miembro": {
+      "body": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": [],
+          "message": "The assignee must be a member of the project",
+        },
+      },
+      "status": 400,
+    },
+  },
+  "editar": {
+    "formato inválido": {
+      "body": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": [],
+          "message": "assigneeId must be a valid user id",
+        },
+      },
+      "status": 400,
+    },
+    "id de proyecto": {
+      "body": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": [],
+          "message": "assigneeId must be a valid user id",
+        },
+      },
+      "status": 400,
+    },
+    "id inexistente": {
+      "body": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": [],
+          "message": "The assignee must be a member of the project",
+        },
+      },
+      "status": 400,
+    },
+    "miembro": {
+      "assignee": ""user-3"",
+      "status": 200,
+    },
+    "null": {
+      "assignee": "null",
+      "status": 200,
+    },
+    "número": {
+      "assignee": ""user-1"",
+      "status": 200,
+    },
+    "omitido": {
+      "assignee": ""user-1"",
+      "status": 200,
+    },
+    "owner": {
+      "assignee": ""user-1"",
+      "status": 200,
+    },
+    "usuario no miembro": {
+      "body": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": [],
+          "message": "The assignee must be a member of the project",
+        },
+      },
+      "status": 400,
+    },
+  },
+}
+`;
+
+exports[`Caracterización · tareas: asignado y cambio de estado el miembro no asignado puede "cambiar" al mismo estado y editar otros campos 1`] = `
+{
+  "conEstadoNuevo": {
+    "body": {
+      "error": {
+        "code": "FORBIDDEN",
+        "details": [],
+        "message": "Only the assignee or a project admin can change the status",
+      },
+    },
+    "status": 403,
+  },
+  "mismoEstado": {
+    "body": {
+      "assigneeId": null,
+      "createdAt": "<fecha ISO>",
+      "description": null,
+      "dueDate": null,
+      "id": "task-12",
+      "priority": "MEDIUM",
+      "projectId": "proj-3",
+      "status": "TODO",
+      "title": "Título cambiado por el miembro",
+      "updatedAt": "<fecha ISO>",
+    },
+    "status": 200,
+  },
+  "tituloFinal": "Título cambiado por el miembro",
+}
+`;
+
+exports[`Caracterización · tareas: asignado y cambio de estado matriz de transiciones (owner) 1`] = `
+{
+  "DONE → "BLOCKED"": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Status must be one of: TODO, IN_PROGRESS, DONE",
+      },
+    },
+    "filasDeHistorial": 1,
+    "status": 400,
+  },
+  "DONE → "DONE"": {
+    "estado": "DONE",
+    "filasDeHistorial": 1,
+    "status": 200,
+  },
+  "DONE → "IN_PROGRESS"": {
+    "body": {
+      "error": {
+        "code": "INVALID_TRANSITION",
+        "details": [],
+        "message": "Cannot move a task from DONE to IN_PROGRESS",
+      },
+    },
+    "filasDeHistorial": 1,
+    "status": 422,
+  },
+  "DONE → "TODO"": {
+    "body": {
+      "error": {
+        "code": "INVALID_TRANSITION",
+        "details": [],
+        "message": "Cannot move a task from DONE to TODO",
+      },
+    },
+    "filasDeHistorial": 1,
+    "status": 422,
+  },
+  "DONE → "todo"": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Status must be one of: TODO, IN_PROGRESS, DONE",
+      },
+    },
+    "filasDeHistorial": 1,
+    "status": 400,
+  },
+  "DONE → 1": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Status must be one of: TODO, IN_PROGRESS, DONE",
+      },
+    },
+    "filasDeHistorial": 1,
+    "status": 400,
+  },
+  "IN_PROGRESS → "BLOCKED"": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Status must be one of: TODO, IN_PROGRESS, DONE",
+      },
+    },
+    "filasDeHistorial": 1,
+    "status": 400,
+  },
+  "IN_PROGRESS → "DONE"": {
+    "estado": "DONE",
+    "filasDeHistorial": 2,
+    "status": 200,
+  },
+  "IN_PROGRESS → "IN_PROGRESS"": {
+    "estado": "IN_PROGRESS",
+    "filasDeHistorial": 1,
+    "status": 200,
+  },
+  "IN_PROGRESS → "TODO"": {
+    "estado": "TODO",
+    "filasDeHistorial": 2,
+    "status": 200,
+  },
+  "IN_PROGRESS → "todo"": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Status must be one of: TODO, IN_PROGRESS, DONE",
+      },
+    },
+    "filasDeHistorial": 1,
+    "status": 400,
+  },
+  "IN_PROGRESS → 1": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Status must be one of: TODO, IN_PROGRESS, DONE",
+      },
+    },
+    "filasDeHistorial": 1,
+    "status": 400,
+  },
+  "TODO → "BLOCKED"": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Status must be one of: TODO, IN_PROGRESS, DONE",
+      },
+    },
+    "filasDeHistorial": 1,
+    "status": 400,
+  },
+  "TODO → "DONE"": {
+    "estado": "DONE",
+    "filasDeHistorial": 2,
+    "status": 200,
+  },
+  "TODO → "IN_PROGRESS"": {
+    "estado": "IN_PROGRESS",
+    "filasDeHistorial": 2,
+    "status": 200,
+  },
+  "TODO → "TODO"": {
+    "estado": "TODO",
+    "filasDeHistorial": 1,
+    "status": 200,
+  },
+  "TODO → "todo"": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Status must be one of: TODO, IN_PROGRESS, DONE",
+      },
+    },
+    "filasDeHistorial": 1,
+    "status": 400,
+  },
+  "TODO → 1": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Status must be one of: TODO, IN_PROGRESS, DONE",
+      },
+    },
+    "filasDeHistorial": 1,
+    "status": 400,
+  },
+}
+`;
+
+exports[`Caracterización · tareas: asignado y cambio de estado quién puede cambiar el estado 1`] = `
+{
+  "admin": {
+    "body": {
+      "assigneeId": null,
+      "createdAt": "<fecha ISO>",
+      "description": null,
+      "dueDate": null,
+      "id": "task-8",
+      "priority": "MEDIUM",
+      "projectId": "proj-2",
+      "status": "IN_PROGRESS",
+      "title": "Tarea de admin",
+      "updatedAt": "<fecha ISO>",
+    },
+    "filasDeHistorial": 2,
+    "status": 200,
+  },
+  "ajeno": {
+    "body": {
+      "error": {
+        "code": "FORBIDDEN",
+        "details": [],
+        "message": "You are not a member of this project",
+      },
+    },
+    "filasDeHistorial": 1,
+    "status": 403,
+  },
+  "miembro asignado": {
+    "body": {
+      "assigneeId": "user-7",
+      "createdAt": "<fecha ISO>",
+      "description": null,
+      "dueDate": null,
+      "id": "task-9",
+      "priority": "MEDIUM",
+      "projectId": "proj-2",
+      "status": "IN_PROGRESS",
+      "title": "Tarea de miembro asignado",
+      "updatedAt": "<fecha ISO>",
+    },
+    "filasDeHistorial": 2,
+    "status": 200,
+  },
+  "miembro no asignado": {
+    "body": {
+      "error": {
+        "code": "FORBIDDEN",
+        "details": [],
+        "message": "Only the assignee or a project admin can change the status",
+      },
+    },
+    "filasDeHistorial": 1,
+    "status": 403,
+  },
+  "owner": {
+    "body": {
+      "assigneeId": null,
+      "createdAt": "<fecha ISO>",
+      "description": null,
+      "dueDate": null,
+      "id": "task-7",
+      "priority": "MEDIUM",
+      "projectId": "proj-2",
+      "status": "IN_PROGRESS",
+      "title": "Tarea de owner",
+      "updatedAt": "<fecha ISO>",
+    },
+    "filasDeHistorial": 2,
+    "status": 200,
+  },
+}
+`;

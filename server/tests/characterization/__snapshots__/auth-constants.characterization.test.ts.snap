@@ -1,0 +1,107 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Caracterización · constantes de autenticación con el bloqueo vencido, la contraseña correcta vuelve a entrar 1`] = `
+{
+  "failedAttempts": 5,
+  "lockedUntil": null,
+  "status": 200,
+}
+`;
+
+exports[`Caracterización · constantes de autenticación el 5.º intento fallido bloquea la cuenta 15 minutos 1`] = `
+[
+  {
+    "bloqueada": false,
+    "body": {
+      "error": {
+        "code": "UNAUTHORIZED",
+        "details": [],
+        "message": "Invalid credentials",
+      },
+    },
+    "failedAttempts": 1,
+    "intento": 1,
+    "status": 401,
+  },
+  {
+    "bloqueada": false,
+    "body": {
+      "error": {
+        "code": "UNAUTHORIZED",
+        "details": [],
+        "message": "Invalid credentials",
+      },
+    },
+    "failedAttempts": 2,
+    "intento": 2,
+    "status": 401,
+  },
+  {
+    "bloqueada": false,
+    "body": {
+      "error": {
+        "code": "UNAUTHORIZED",
+        "details": [],
+        "message": "Invalid credentials",
+      },
+    },
+    "failedAttempts": 3,
+    "intento": 3,
+    "status": 401,
+  },
+  {
+    "bloqueada": false,
+    "body": {
+      "error": {
+        "code": "UNAUTHORIZED",
+        "details": [],
+        "message": "Invalid credentials",
+      },
+    },
+    "failedAttempts": 4,
+    "intento": 4,
+    "status": 401,
+  },
+  {
+    "bloqueada": true,
+    "body": {
+      "error": {
+        "code": "UNAUTHORIZED",
+        "details": [],
+        "message": "Invalid credentials",
+      },
+    },
+    "failedAttempts": 5,
+    "intento": 5,
+    "status": 401,
+  },
+  {
+    "body": {
+      "error": {
+        "code": "UNAUTHORIZED",
+        "details": [],
+        "message": "Account temporarily locked. Try again later.",
+      },
+    },
+    "intento": "correcta tras el bloqueo",
+    "status": 401,
+  },
+]
+`;
+
+exports[`Caracterización · constantes de autenticación el token de reseteo tiene 24 bytes (48 hex) y vence a los 60 minutos 1`] = `
+{
+  "body": {
+    "message": "Password reset requested",
+    "token": "<48 hex>",
+  },
+  "status": 200,
+}
+`;
+
+exports[`Caracterización · constantes de autenticación un login exitoso no reinicia el contador de intentos fallidos 1`] = `
+{
+  "failedAttempts": 2,
+  "status": 200,
+}
+`;

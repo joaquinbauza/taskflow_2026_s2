@@ -1,0 +1,342 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Caracterización · validación de email (assertEmail) POST /auth/forgot-password 1`] = `
+{
+  ""  con-espacios@test.com  "": {
+    "body": {
+      "message": "Password reset requested",
+      "token": "<48 hex>",
+    },
+    "status": 200,
+  },
+  """": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Email must be a valid address",
+      },
+    },
+    "status": 400,
+  },
+  ""Mayus.Con.Puntos@Test.COM"": {
+    "body": {
+      "message": "Password reset requested",
+      "token": "<48 hex>",
+    },
+    "status": 200,
+  },
+  ""a@b"": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Email must be a valid address",
+      },
+    },
+    "status": 400,
+  },
+  ""a@b.c"": {
+    "body": {
+      "message": "Password reset requested",
+      "token": "<48 hex>",
+    },
+    "status": 200,
+  },
+  ""alias+etiqueta@test.com"": {
+    "body": {
+      "message": "Password reset requested",
+      "token": "<48 hex>",
+    },
+    "status": 200,
+  },
+  ""con espacio@test.com"": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Email must be a valid address",
+      },
+    },
+    "status": 400,
+  },
+  ""dos@@test.com"": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Email must be a valid address",
+      },
+    },
+    "status": 400,
+  },
+  ""no-registrado@test.com"": {
+    "body": {
+      "error": {
+        "code": "NOT_FOUND",
+        "details": [],
+        "message": "No account found for that email",
+      },
+    },
+    "status": 404,
+  },
+  ""simple@test.com"": {
+    "body": {
+      "message": "Password reset requested",
+      "token": "<48 hex>",
+    },
+    "status": 200,
+  },
+  ""sin-arroba.com"": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Email must be a valid address",
+      },
+    },
+    "status": 400,
+  },
+  ""ñandú@test.uy"": {
+    "body": {
+      "message": "Password reset requested",
+      "token": "<48 hex>",
+    },
+    "status": 200,
+  },
+  "123": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Email must be a valid address",
+      },
+    },
+    "status": 400,
+  },
+  "null": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Email must be a valid address",
+      },
+    },
+    "status": 400,
+  },
+}
+`;
+
+exports[`Caracterización · validación de email (assertEmail) POST /auth/register 1`] = `
+{
+  ""  con-espacios@test.com  "": {
+    "email": "con-espacios@test.com",
+    "status": 201,
+  },
+  """": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Email must be a valid address",
+      },
+    },
+    "status": 400,
+  },
+  ""Mayus.Con.Puntos@Test.COM"": {
+    "email": "mayus.con.puntos@test.com",
+    "status": 201,
+  },
+  ""a@b"": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Email must be a valid address",
+      },
+    },
+    "status": 400,
+  },
+  ""a@b.c"": {
+    "email": "a@b.c",
+    "status": 201,
+  },
+  ""alias+etiqueta@test.com"": {
+    "email": "alias+etiqueta@test.com",
+    "status": 201,
+  },
+  ""con espacio@test.com"": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Email must be a valid address",
+      },
+    },
+    "status": 400,
+  },
+  ""dos@@test.com"": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Email must be a valid address",
+      },
+    },
+    "status": 400,
+  },
+  ""simple@test.com"": {
+    "email": "simple@test.com",
+    "status": 201,
+  },
+  ""sin-arroba.com"": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Email must be a valid address",
+      },
+    },
+    "status": 400,
+  },
+  ""ñandú@test.uy"": {
+    "email": "ñandú@test.uy",
+    "status": 201,
+  },
+  "123": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Email must be a valid address",
+      },
+    },
+    "status": 400,
+  },
+  "null": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "Email must be a valid address",
+      },
+    },
+    "status": 400,
+  },
+}
+`;
+
+exports[`Caracterización · validación de email (assertEmail) POST /projects/:id/members 1`] = `
+{
+  ""  con-espacios@test.com  "": {
+    "email": "con-espacios@test.com",
+    "role": "MEMBER",
+    "status": 201,
+  },
+  """": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "email must be a valid address",
+      },
+    },
+    "status": 400,
+  },
+  ""Mayus.Con.Puntos@Test.COM"": {
+    "email": "mayus.con.puntos@test.com",
+    "role": "MEMBER",
+    "status": 201,
+  },
+  ""a@b"": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "email must be a valid address",
+      },
+    },
+    "status": 400,
+  },
+  ""a@b.c"": {
+    "email": "a@b.c",
+    "role": "MEMBER",
+    "status": 201,
+  },
+  ""alias+etiqueta@test.com"": {
+    "email": "alias+etiqueta@test.com",
+    "role": "MEMBER",
+    "status": 201,
+  },
+  ""con espacio@test.com"": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "email must be a valid address",
+      },
+    },
+    "status": 400,
+  },
+  ""dos@@test.com"": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "email must be a valid address",
+      },
+    },
+    "status": 400,
+  },
+  ""no-registrado@test.com"": {
+    "body": {
+      "error": {
+        "code": "NOT_FOUND",
+        "details": [],
+        "message": "No user found with that email",
+      },
+    },
+    "status": 404,
+  },
+  ""simple@test.com"": {
+    "email": "simple@test.com",
+    "role": "MEMBER",
+    "status": 201,
+  },
+  ""sin-arroba.com"": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "email must be a valid address",
+      },
+    },
+    "status": 400,
+  },
+  ""ñandú@test.uy"": {
+    "email": "ñandú@test.uy",
+    "role": "MEMBER",
+    "status": 201,
+  },
+  "123": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "email must be a valid address",
+      },
+    },
+    "status": 400,
+  },
+  "null": {
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "details": [],
+        "message": "email must be a valid address",
+      },
+    },
+    "status": 400,
+  },
+}
+`;
