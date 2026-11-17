@@ -6,8 +6,7 @@ import * as repo from './comments.repository';
 const MAX_LENGTH = 1000;
 
 export function serialize(c: Comment) {
-  // Antes: catch (e) { return null; }
-  // Ocultaba errores de serializacion; ahora llegan al middleware de errores.
+  // Sin try/catch a proposito: los errores de serializacion llegan al middleware de errores.
   return {
     id: toPublicId('comment', c.id),
     taskId: toPublicId('task', c.taskId),

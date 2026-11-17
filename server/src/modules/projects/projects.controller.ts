@@ -2,10 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { db } from '../../lib/db';
 import { badRequest, conflict, forbidden, notFound } from '../../lib/http';
 import { parsePublicId, toPublicId } from '../../lib/ids';
-//import { assertOptionalString } from '../../lib/validation';
 import { assertEmail, assertOptionalString } from '../../lib/validation';
-
-//const EMAIL_CHECK = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function serialize(p: {
   id: number;

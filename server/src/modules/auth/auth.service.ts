@@ -3,19 +3,8 @@ import crypto from 'crypto';
 import { db } from '../../lib/db';
 import { badRequest, conflict, notFound, unauthorized } from '../../lib/http';
 import { toPublicId } from '../../lib/ids';
-//import { assertPassword, normalizeEmail } from '../../lib/validation';
 import { signToken } from '../../middleware/auth';
 import { assertEmail, assertPassword, normalizeEmail } from '../../lib/validation';
-
-/*const EMAIL_PATTERN = /^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-function checkEmail(email: unknown): string {
-  if (typeof email !== 'string' || !EMAIL_PATTERN.test(email.trim())) {
-    throw badRequest('Email must be a valid address');
-  }
-  return normalizeEmail(email);
-}*/
-
 
 export interface PublicUser {
   id: string;
