@@ -13,6 +13,7 @@ Evidencia: [`evidencias/seguridad/pruebas-api.md`](evidencias/seguridad/pruebas-
 | `npm audit` | npm 10 (Node 22.23.5) | Dependencias con vulnerabilidades conocidas (raíz, `server/`, `client/`) | [`evidencias/seguridad/npm-audit*.txt`](evidencias/seguridad/) |
 | `curl` + [`pruebas-api.sh`](evidencias/seguridad/pruebas-api.sh) | curl 8 (Git Bash) | Pruebas manuales de la API: headers, CORS, IDOR, inyección SQL, XSS, JWT, fuerza bruta | [`pruebas-api.md`](evidencias/seguridad/pruebas-api.md) |
 | **OWASP ZAP** (baseline scan) | **2.17.0** (imagen `ghcr.io/zaproxy/zaproxy:stable`) | Escaneo pasivo y sin autenticar del front y de la API | [`zap-baseline-web.html`](evidencias/seguridad/zap-baseline-web.html) / [`.json`](evidencias/seguridad/zap-baseline-web.json), [`zap-baseline-api.html`](evidencias/seguridad/zap-baseline-api.html) / [`.json`](evidencias/seguridad/zap-baseline-api.json), salida de consola en `zap-baseline-*.txt` |
+| Calculadora CVSS 3.1 | fórmula oficial de FIRST | Puntajes de SEC-01, SEC-02, BUG-14, BUG-15 | [`cvss31.js`](evidencias/seguridad/cvss31.js) → [`cvss31-salida.txt`](evidencias/seguridad/cvss31-salida.txt) |
 | `@axe-core/playwright` | 4.14 | Accesibilidad automática (WCAG 2.1 A/AA) | [`evidencias/a11y-informe.txt`](evidencias/a11y-informe.txt) |
 
 ## Análisis de dependencias (`npm audit`)
@@ -31,8 +32,8 @@ Conclusión: sí hay 2+ vulnerabilidades HIGH/CRITICAL. Las de la raíz son de d
 
 | Campo | Valor |
 |---|---|
-| Severidad | **CRITICAL** |
-| CVSS 3.1 (estimado) | 8.1 — AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N |
+| Severidad | **HIGH** (CVSS 3.1 8.1; antes figuraba como CRITICAL, que no corresponde a 8.1) |
+| CVSS 3.1 | **8.1** — [CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N](https://www.first.org/cvss/calculator/3.1#CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N) (ver [Puntajes CVSS 3.1](#puntajes-cvss-31)) |
 | Criterio | Seguridad 1: "Toda entrada del usuario se trata como dato y nunca se concatena a una consulta a la base de datos" · US-07 |
 | Relacionado | BUG-09, [ISSUE-07](issues/ISSUE-07-sql-injection-busqueda.md), GitHub [#8](https://github.com/joaquinbauza/taskflow_2026_s2/issues/8) |
 
@@ -52,8 +53,8 @@ Conclusión: sí hay 2+ vulnerabilidades HIGH/CRITICAL. Las de la raíz son de d
 
 | Campo | Valor |
 |---|---|
-| Severidad | **HIGH** |
-| CVSS 3.1 (estimado) | 8.8 — AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N cuando falta `JWT_SECRET` (caso del `.env.example` actual) |
+| Severidad | **CRITICAL** (CVSS 3.1 9.1) |
+| CVSS 3.1 | **9.1** — [CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N](https://www.first.org/cvss/calculator/3.1#CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N) cuando falta `JWT_SECRET` (caso del `.env.example` actual). Corregido: antes decía 8.8, pero ese vector da 9.1 |
 | Criterio | Seguridad (autenticación): solo la API emite tokens válidos; US-02 c7 |
 | Relacionado | BUG-21, [ISSUE-17](issues/ISSUE-17-secreto-jwt-por-defecto.md), GitHub [#18](https://github.com/joaquinbauza/taskflow_2026_s2/issues/18) |
 
@@ -75,6 +76,19 @@ Conclusión: sí hay 2+ vulnerabilidades HIGH/CRITICAL. Las de la raíz son de d
 - **Headers:** `X-Powered-By: Express` presente; faltan `Content-Security-Policy`, `X-Frame-Options`, `X-Content-Type-Options`, `Strict-Transport-Security` (no hay `helmet`). **CORS** `Access-Control-Allow-Origin: *` incluso para `Origin: https://evil.example` (mitigado porque el token va en header, no en cookie).
 - **Fuerza bruta:** la cuenta se bloquea a los 5 fallos (control que funciona), pero **no hay rate limit por IP**: 30 logins seguidos a cuentas distintas responden 401, nunca 429 → enumeración/credential stuffing distribuido sin freno. Además el bloqueo por cuenta permite bloquear a propósito a un usuario (DoS dirigido).
 - **XSS almacenado:** `<img src=x onerror=alert(1)>` se guarda tal cual en título y comentario (201). En el front **no se ejecuta**: React escapa el texto en JSX y no hay `dangerouslySetInnerHTML`/`innerHTML` en `client/src` (revisado por código). Riesgo latente si otro consumidor renderiza HTML.
+
+### Puntajes CVSS 3.1
+
+Calculados con la fórmula oficial de FIRST (especificación CVSS v3.1, §7.1 y función *Roundup* del Apéndice A), implementada en [`evidencias/seguridad/cvss31.js`](evidencias/seguridad/cvss31.js) (`node docs/evidencias/seguridad/cvss31.js`; salida en [`cvss31-salida.txt`](evidencias/seguridad/cvss31-salida.txt)). Para validar la implementación, el script también puntúa dos vectores de referencia: `AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H` → 9.8 y `AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N` → 6.1, los mismos valores que da la calculadora de FIRST. Calculadora: <https://www.first.org/cvss/calculator/3.1> (cada vector de la tabla abre la calculadora precargada).
+
+| ID | Vector | Puntaje | Severidad | Justificación |
+|---|---|---|---|---|
+| SEC-01 (BUG-09) | [CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N](https://www.first.org/cvss/calculator/3.1#CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N) | **8.1** | HIGH | **AV:N** por HTTP a la API · **AC:L** un único payload en `search`, sin condiciones · **PR:L** hace falta cualquier cuenta (el registro es abierto) y ser miembro de algún proyecto · **UI:N** no participa otra persona · **S:U** el impacto queda en la base de la propia API · **C:H** lee tareas de todos los proyectos y, con `UNION`, otras tablas (`users.passwordHash`) · **I:H** se mantiene la valoración original del equipo: `$queryRawUnsafe` ejecuta SQL armado con la entrada · **A:N** no se demostró denegación de servicio |
+| SEC-02 (BUG-21) | [CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N](https://www.first.org/cvss/calculator/3.1#CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N) | **9.1** | CRITICAL | **AV:N** por HTTP · **AC:L** el secreto `taskflow-dev-secret` está en el repo y los ids son secuenciales · **PR:N** se forja el token sin tener cuenta · **UI:N** · **S:U** · **C:H** lee todos los datos de cualquier usuario · **I:H** edita y borra como cualquier usuario · **A:N** no afecta la disponibilidad |
+| BUG-14 | [CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N](https://www.first.org/cvss/calculator/3.1#CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N) | **9.1** | CRITICAL | **AV:N** `POST /api/auth/forgot-password` es público · **AC:L** basta conocer o adivinar un email (el 404 de los inexistentes confirma cuáles existen) · **PR:N** el endpoint no pide sesión · **UI:N** el token vuelve en la respuesta, la víctima no recibe ni abre ningún email · **S:U** · **C:H** con el token se hace `reset-password` y se entra a la cuenta: acceso a todos sus datos · **I:H** toma de la cuenta (cambia la contraseña y opera como la víctima) · **A:N** la víctima pierde el acceso a su cuenta, pero el servicio sigue disponible |
+| BUG-15 | [CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N](https://www.first.org/cvss/calculator/3.1#CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N) | **7.4** | HIGH | Puntuado **aislado de BUG-14** (mientras el token se devuelva en la respuesta, el camino de ataque es BUG-14, 9.1) · **AV:N** `POST /api/auth/reset-password` es público · **AC:H** el atacante tiene que conseguir un token viejo (usado, invalidado o vencido) por un canal ajeno a la app: un email reenviado, un log, el historial · **PR:N** · **UI:N** · **S:U** · **C:H / I:H** el token viejo sigue cambiando la contraseña: toma de la cuenta (los 3 tests de `bugs.test.ts › BUG-15`) · **A:N** |
+
+Con 9.1, SEC-02 pasa de HIGH a CRITICAL. En [`bugs.md`](bugs.md), BUG-21 (el mismo hallazgo) todavía figura con severidad **Alta**: queda pendiente alinearlo (lo corrige otro integrante en su rama).
 
 ## Escaneo OWASP ZAP (baseline)
 
@@ -203,6 +217,7 @@ Criterios de aceptación (testeables):
 - [x] Tokens de ana y bob obtenidos con `curl` a `/api/auth/login`.
 - [x] Headers de seguridad y CORS revisados con `curl -I`.
 - [x] OWASP ZAP 2.17.0 baseline contra el front (`:5173`) y la API (`:3000/api/projects`); reportes HTML y JSON en `docs/evidencias/seguridad/` y hallazgos cruzados con los de curl.
+- [x] CVSS 3.1 calculado con la fórmula oficial (script) para SEC-01, SEC-02, BUG-14 y BUG-15; SEC-02 corregido a 9.1 (CRITICAL).
 - [x] Control de acceso (IDOR) probado con dos usuarios sobre proyectos, tareas y comentarios.
 - [x] Inyecciones (SQL, XSS almacenado), JWT manipulado (`alg: none`, firma alterada, vencido) y fuerza bruta, con la expectativa escrita antes.
 - [x] 2 hallazgos de seguridad (SEC-01, SEC-02) con todos los campos + 1 control verificado.
