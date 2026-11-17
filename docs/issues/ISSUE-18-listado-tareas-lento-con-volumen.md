@@ -1,6 +1,6 @@
-# ISSUE-19 · Performance (BUG-11 + N+1)
+# ISSUE-18 · BUG-22 (performance; relacionado con BUG-11)
 
-> Etiqueta: `alta` · Relacionado: [BUG-11](../bugs.md#bug-11), [docs/performance.md](../performance.md)
+> Etiqueta: `alta` · Bug: [BUG-22](../bugs.md#bug-22) · Relacionado: [BUG-11](../bugs.md#bug-11), [docs/performance.md](../performance.md)
 
 **Título:** [Tareas · API] El listado de tareas tarda más de 5 s (p95) con 5.000 tareas porque no pagina y hace 2 consultas por tarea
 **Criterio violado:** Rendimiento 2: "Con un volumen de 5.000 tareas y 20.000 comentarios, el tiempo de respuesta del listado de tareas (percentil 95) no supera los 500 ms" · Rendimiento 1 (paginación) · Rendimiento 3: "El número de consultas a la base de datos por request no depende de la cantidad de resultados devueltos"

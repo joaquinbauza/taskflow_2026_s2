@@ -60,7 +60,7 @@ Criterios de Rendimiento de la spec que se violan:
 - **Rendimiento 2:** "Con un volumen de 5.000 tareas y 20.000 comentarios, el tiempo de respuesta del listado de tareas (percentil 95) no supera los 500 ms." → p95 5.633 ms con 1 usuario.
 - **Rendimiento 3:** "El número de consultas a la base de datos por request no depende de la cantidad de resultados devueltos." → 2 consultas por tarea.
 
-Issue: [ISSUE-19](issues/ISSUE-19-listado-tareas-lento-con-volumen.md).
+Issue: [ISSUE-18](issues/ISSUE-18-listado-tareas-lento-con-volumen.md).
 
 ## Propuesta (no implementada)
 
