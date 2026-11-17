@@ -114,7 +114,7 @@ test.describe('US-16 · Fecha de vencimiento', () => {
     await detalle.dueDateInput.fill('2026-12-24');
     const res = await detalle.save();
     expect(res.status()).toBe(403);
-    await expect(detalle.error).toBeVisible();
+    await expect(detalle.saveError).toBeVisible();
     expect((await tasks.get(task.id)).dueDate).toBeNull();
   });
 });

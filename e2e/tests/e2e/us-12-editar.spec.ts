@@ -42,7 +42,7 @@ test.describe('US-12 · Editar tarea', () => {
     const res = await taskDetailPage.save();
     expect(res.status()).toBe(400);
     expect((await res.json()).error.code).toBe('VALIDATION_ERROR');
-    await expect(taskDetailPage.error).toBeVisible();
+    await expect(taskDetailPage.saveError).toBeVisible();
 
     expect((await taskDetailPage.reload()).status()).toBe(200);
     await expect(taskDetailPage.titleInput).toHaveValue(original);
@@ -67,7 +67,7 @@ test.describe('US-12 · Editar tarea', () => {
 
     await taskDetailPage.titleInput.fill('x'.repeat(201));
     expect((await taskDetailPage.save()).status()).toBe(400);
-    await expect(taskDetailPage.error).toBeVisible();
+    await expect(taskDetailPage.saveError).toBeVisible();
     expect((await taskDetailPage.reload()).status()).toBe(200);
     await expect(taskDetailPage.titleInput).toHaveValue(doscientos);
   });

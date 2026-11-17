@@ -51,7 +51,7 @@ test.describe('US-14 · Asignar tarea a un miembro', () => {
     const res = await taskDetailPage.save();
     expect(res.status()).toBe(400);
     expect((await res.json()).error.code).toBe('VALIDATION_ERROR');
-    await expect(taskDetailPage.error).toBeVisible();
+    await expect(taskDetailPage.saveError).toBeVisible();
 
     expect((await taskDetailPage.reload()).status()).toBe(200);
     await expect(taskDetailPage.assigneeSelect).toHaveValue('');

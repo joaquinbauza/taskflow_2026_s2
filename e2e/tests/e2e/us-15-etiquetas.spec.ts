@@ -78,7 +78,7 @@ test.describe('US-15 · Etiquetar tareas', () => {
 
     const res = await taskDetailPage.addTag('b'.repeat(31));
     expect(res.status()).toBe(400);
-    await expect(taskDetailPage.error).toBeVisible();
+    await expect(taskDetailPage.tagError).toBeVisible();
     await expect(taskDetailPage.tagChips).toHaveCount(1);
   });
 
@@ -94,7 +94,7 @@ test.describe('US-15 · Etiquetar tareas', () => {
 
     const res = await taskDetailPage.addTag('once');
     expect(res.status()).toBe(400);
-    await expect(taskDetailPage.error).toBeVisible();
+    await expect(taskDetailPage.tagError).toBeVisible();
     await expect(taskDetailPage.tagChips).toHaveCount(10);
   });
 

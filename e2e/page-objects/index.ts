@@ -134,6 +134,10 @@ export class TaskDetailPage extends BasePage {
   readonly tagNames = this.page.getByTestId('tag-chip-name');
   readonly commentInput = this.page.getByTestId('comment-add-input');
   readonly commentAddButton = this.page.getByTestId('comment-add-button');
+  /** Error del formulario de edición (puede haber otros error-message en la página). */
+  readonly saveError = this.page.getByTestId('task-edit-form').getByTestId('error-message');
+  /** Error de la sección de etiquetas. */
+  readonly tagError = this.page.getByTestId('task-tags-section').getByTestId('error-message');
 
   /** Abre el detalle y espera el GET de la tarea; devuelve esa respuesta. */
   async goto(projectId: string, taskId: string): Promise<Response> {

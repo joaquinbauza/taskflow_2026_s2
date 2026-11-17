@@ -12,4 +12,6 @@ export default defineConfig([
   pluginReact.configs.flat.recommended,
   pluginReact.configs.flat["jsx-runtime"], // desactiva react-in-jsx-scope (React 17+)
   { settings: { react: { version: "detect" } } },
+  // Scripts de k6: corren en el runtime de k6, que define __ENV, __VU y __ITER
+  { files: ["performance/**/*.js"], languageOptions: { globals: { __ENV: "readonly", __VU: "readonly", __ITER: "readonly" } } },
 ]);

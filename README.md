@@ -85,6 +85,10 @@ El comando `db:setup` carga datos de ejemplo. Los tres usuarios comparten la con
 | `npm run test:coverage` | Corre la suite de Jest con reporte de cobertura |
 | `npm run test:e2e` | Corre los tests end-to-end con Playwright |
 | `npm run test:e2e:ui` | Corre los tests end-to-end en modo interactivo (UI mode) |
+| `npm run test:pact` | Contract testing con Pact: consumer (genera `server/pacts/`) y después provider (ver [`docs/pact.md`](docs/pact.md)) |
+| `npx playwright test a11y --project chromium` | Auditoría de accesibilidad WCAG 2.1 A/AA con axe-core (`e2e/tests/a11y.spec.ts`) |
+| `npm run db:seed:large` | Agrega a la base de desarrollo un proyecto con 5.000 tareas y 20.000 comentarios (para k6) |
+| `k6 run -e VUS=20 -e DURATION=1m performance/scenarios/api-load.k6.js` | Prueba de carga del listado de tareas (requiere [k6](https://k6.io) y la API levantada; ver [`docs/performance.md`](docs/performance.md)) |
 
 ## Frontend
 
@@ -191,6 +195,17 @@ HTTP de la acción que dispara (registro, alta de proyecto/tarea, cambio de
 estado) antes de asertar sobre la UI, para evitar falsos verdes por
 condiciones de carrera.
 
+La suite sigue la arquitectura de
+[`docs/adr/ADR-001`](docs/adr/ADR-001-arquitectura-testing-playwright.md):
+Page Objects (`e2e/page-objects/`), Component Objects (`e2e/components/`:
+`TaskCard`, `CommentItem`, `MemberItem`, `AppHeader`), fixtures
+(`e2e/fixtures/`: `apiContext`, `owner`, `seedProject`, `loggedInPage` y los
+page objects) y clients de la API (`e2e/api/`). Arrange por API, Act y Assert
+por UI; el login por formulario se prueba una sola vez (`tests/e2e/login.spec.ts`).
+Navegador y API corren en `America/Montevideo` (BUG-03). Reportes: `list`,
+HTML (`playwright-report/`) y JUnit (`results/junit.xml`). Configuración por
+ambiente en `e2e/.env.example`.
+
 ## Pirámide de tests
 
 Lo que se puede probar abajo se prueba abajo:
@@ -200,7 +215,9 @@ Lo que se puede probar abajo se prueba abajo:
 | Unitarios | `server/tests/unit/` | Lógica pura sin base ni HTTP: transiciones de estado, validaciones, ids y fechas, armado de filtros |
 | Contrato | `client/src/contracts/api.contract.ts` + `server/tests/contract/`; Pact en `server/contract-tests/` | El frontend declara qué status y qué campos espera de cada endpoint que usa; la API real se verifica contra eso. Pact: el consumer genera `server/pacts/*.json` y la API real lo verifica |
 | Integración | `server/tests/*.test.ts` | Endpoints con Supertest contra SQLite, incluidas las reglas de negocio y permisos |
-| E2E | `e2e/tests/` | Flujos críticos en el navegador (golden path, login inválido, alta de miembros) |
+| E2E | `e2e/tests/e2e/` | Flujos en el navegador: golden path, login, alta de miembros y US-12, US-14, US-15, US-16 (feliz, error y borde por historia) |
+| Accesibilidad | `e2e/tests/a11y.spec.ts` | axe-core, WCAG 2.1 A/AA en Login, Registro, Proyectos, Tablero y Detalle de tarea |
+| Performance | `performance/scenarios/` | Carga del listado de tareas con k6 (p95 ≤ 500 ms con 5.000 tareas) |
 
 ### Contrato frontend → API
 
@@ -243,16 +260,43 @@ taskflow/
 │   │   ├── middleware/  # autenticación, membresía, manejo de errores
 │   │   ├── modules/     # auth, projects, tasks, comments
 │   │   └── lib/         # base de datos, validaciones, utilidades
-│   └── tests/
+│   ├── tests/           # Jest: unitarios, contrato casero, integración, bugs
+│   ├── contract-tests/  # Pact: consumer/ y provider/
+│   └── pacts/           # contrato generado (TaskFlowWeb-TaskFlowAPI.json)
 ├── client/
 │   └── src/
 │       ├── pages/       # login, proyectos, tablero, detalle, miembros
 │       └── lib/         # cliente HTTP, sesión, helpers
 ├── e2e/
-│   └── tests/           # tests end-to-end (Playwright)
+│   ├── config/          # lectura del .env por ambiente
+│   ├── fixtures/        # test.extend(): apiContext, seedProject, loggedInPage…
+│   ├── page-objects/    # LoginPage, ProjectsPage, BoardPage, TaskDetailPage, MembersPage
+│   ├── components/      # TaskCard, CommentItem, MemberItem, AppHeader
+│   ├── api/             # clients/ y schemas/ de la API
+│   ├── test-data/       # factories con nombres únicos
+│   └── tests/           # e2e/*.spec.ts y a11y.spec.ts
+├── performance/
+│   └── scenarios/       # api-load.k6.js
+├── docs/                # ver índice abajo
 ├── playwright.config.ts
 └── README.md
 ```
+
+## Documentación (`docs/`)
+
+| Documento | Contenido |
+|---|---|
+| [`bugs.md`](docs/bugs.md) | Reporte de bugs (BUG-01 a BUG-22) con estado y tests |
+| [`issues/`](docs/issues/) | Issues en formato de plantilla (ISSUE-01 a ISSUE-18), para cargar en GitHub |
+| [`adr/ADR-001-…`](docs/adr/ADR-001-arquitectura-testing-playwright.md) | Arquitectura del framework de Playwright |
+| [`e2e-us-12-14-15-16.md`](docs/e2e-us-12-14-15-16.md) | Trazabilidad y mutaciones de los E2E de US-12/14/15/16 |
+| [`pact.md`](docs/pact.md) | Contract testing con Pact, evidencia de ruptura |
+| [`clase12-m2-reporte.md`](docs/clase12-m2-reporte.md) | Práctico de seguridad y accesibilidad (SEC, ACC, user stories) |
+| [`performance.md`](docs/performance.md) | k6, seed grande, resultados e hipótesis |
+| [`clase12-ej1b-pipeline.md`](docs/clase12-ej1b-pipeline.md) | Clasificación del pipeline en rojo |
+| [`clase12-ej2-ia.md`](docs/clase12-ej2-ia.md) · [`ia/`](docs/ia/) | Tests de US-16 generados con IA, prompts y clasificación |
+| [`clase12-ej3-informe.md`](docs/clase12-ej3-informe.md) | Informe de estado de una página y recomendación de liberación |
+| [`evidencias/`](docs/evidencias/) | Salidas de Pact, axe, npm audit, curl de seguridad y performance |
 
 ## Especificación
 
