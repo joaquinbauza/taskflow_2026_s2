@@ -1,0 +1,22 @@
+# npm audit report
+
+@remix-run/router  <=1.23.2
+Severity: high
+React Router vulnerable to XSS via Open Redirects - https://github.com/advisories/GHSA-2w69-qvjg-hvjx
+React Router's same-origin redirect with path starting // causes open redirect via protocol-relative URL reinterpretation - https://github.com/advisories/GHSA-2j2x-hqr9-3h42
+fix available via `npm audit fix --force`
+Will install react-router-dom@6.30.6, which is outside the stated dependency range
+node_modules/@remix-run/router
+  react-router  6.0.0 - 7.17.0
+  Depends on vulnerable versions of @remix-run/router
+  node_modules/react-router
+    react-router-dom  6.0.0-alpha.0 - 6.30.2
+    Depends on vulnerable versions of @remix-run/router
+    Depends on vulnerable versions of react-router
+    node_modules/react-router-dom
+
+
+3 high severity vulnerabilities
+
+To address all issues, run:
+  npm audit fix --force
