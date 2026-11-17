@@ -1,0 +1,359 @@
+{
+  "consumer": {
+    "name": "TaskFlowWeb"
+  },
+  "interactions": [
+    {
+      "description": "un GET a /api/projects",
+      "providerStates": [
+        {
+          "name": "ana tiene un proyecto"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Authorization": "Bearer abc"
+        },
+        "matchingRules": {
+          "header": {
+            "Authorization": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "method": "GET",
+        "path": "/api/projects"
+      },
+      "response": {
+        "body": [
+          {
+            "archived": false,
+            "description": "Renovación completa del sitio",
+            "id": "proj-1",
+            "name": "Rediseño del sitio"
+          }
+        ],
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type",
+                  "min": 1
+                }
+              ]
+            },
+            "$[*].archived": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$[*].description": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$[*].id": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$[*].name": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "un GET a /api/projects sin token",
+      "request": {
+        "method": "GET",
+        "path": "/api/projects"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "code": "UNAUTHORIZED",
+            "message": "Authentication required"
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.error.message": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 401
+      }
+    },
+    {
+      "description": "un GET a /api/tasks/task-1/comments",
+      "providerStates": [
+        {
+          "name": "la tarea task-1 tiene comentarios"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Authorization": "Bearer abc"
+        },
+        "matchingRules": {
+          "header": {
+            "Authorization": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "method": "GET",
+        "path": "/api/tasks/task-1/comments"
+      },
+      "response": {
+        "body": [
+          {
+            "authorId": "user-1",
+            "body": "Arranco con esto.",
+            "createdAt": "2026-11-16T12:00:00.000Z",
+            "id": "comment-1",
+            "taskId": "task-1"
+          }
+        ],
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type",
+                  "min": 1
+                }
+              ]
+            },
+            "$[*].authorId": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$[*].body": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$[*].createdAt": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$[*].id": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$[*].taskId": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^task-\\d+$"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "un POST a /api/auth/login con credenciales válidas",
+      "providerStates": [
+        {
+          "name": "existe ana@test.com con contraseña Password1"
+        }
+      ],
+      "request": {
+        "body": {
+          "email": "ana@test.com",
+          "password": "Password1"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/auth/login"
+      },
+      "response": {
+        "body": {
+          "token": "eyJhbGciOiJIUzI1NiJ9.e30.firma",
+          "user": {
+            "email": "ana@test.com",
+            "id": "user-1",
+            "name": "Ana"
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.token": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.user.email": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.user.id": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.user.name": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "un POST a /api/projects con nombre de 101 caracteres",
+      "providerStates": [
+        {
+          "name": "ana tiene una sesión válida"
+        }
+      ],
+      "request": {
+        "body": {
+          "name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        },
+        "headers": {
+          "Authorization": "Bearer abc",
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "header": {
+            "Authorization": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "method": "POST",
+        "path": "/api/projects"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "code": "VALIDATION_ERROR",
+            "message": "Project name must be at most 100 characters"
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.error.message": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 400
+      }
+    }
+  ],
+  "metadata": {
+    "pact-js": {
+      "version": "17.1.4"
+    },
+    "pactRust": {
+      "ffi": "0.5.8",
+      "models": "1.3.16"
+    },
+    "pactSpecification": {
+      "version": "3.0.0"
+    }
+  },
+  "provider": {
+    "name": "TaskFlowAPI"
+  }
+}

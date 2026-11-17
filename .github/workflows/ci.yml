@@ -86,6 +86,27 @@ jobs:
           path: server/coverage/
           retention-days: 14
 
+  pact:
+    name: Contrato con Pact (consumer + provider)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+        working-directory: server
+      - run: npm run test:pact
+      - name: Subir el contrato generado
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pact
+          path: server/pacts/
+          retention-days: 14
+
   build-client:
     name: Build del cliente (tsc + vite)
     runs-on: ubuntu-latest

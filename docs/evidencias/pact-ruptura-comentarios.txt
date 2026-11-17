@@ -1,0 +1,145 @@
+# Evidencia: ruptura del contrato de comentarios
+# Cambio: server/src/modules/comments/comments.service.ts, serialize(): body: c.body -> text: c.body
+# Comando: cd server && npm run test:pact:provider
+# Fecha: 2026-11-16 21:55    
+
+
+> taskflow-server@1.0.0 test:pact:provider
+> jest -c jest.pact.config.js provider
+
+  console.log
+    [21:55:53.834] INFO (5128): pact@17.1.4: Verifying provider
+
+      at Object.write (node_modules/@pact-foundation/pact-core/src/logger/pino.ts:17:17)
+
+  console.log
+    [21:55:53.887] INFO (5128): pact-core@20.2.0: Verifying Pacts.
+
+      at Object.write (node_modules/@pact-foundation/pact-core/src/logger/pino.ts:17:17)
+
+  console.log
+    [21:55:53.890] INFO (5128): pact-core@20.2.0: Verifying Pact Files
+
+      at Object.write (node_modules/@pact-foundation/pact-core/src/logger/pino.ts:17:17)
+
+  console.log
+    [21:55:53.902] INFO (5128): 0.5.8: pact native library successfully found, and the correct version
+
+      at Object.write (node_modules/@pact-foundation/pact-core/src/logger/pino.ts:17:17)
+          at Array.every (<anonymous>)
+
+2026-11-17T00:55:53.923296Z  INFO ThreadId(13) pact_verifier: Running setup provider state change handler 'ana tiene un proyecto' for 'un GET a /api/projects'
+2026-11-17T00:55:53.982846Z  INFO ThreadId(13) pact_verifier: Running provider verification for 'un GET a /api/projects'
+2026-11-17T00:55:53.982955Z  INFO ThreadId(13) pact_verifier::provider_client: Sending request to provider at http://127.0.0.1:55106/
+2026-11-17T00:55:53.982966Z  INFO ThreadId(13) pact_verifier::provider_client: Sending request HTTP Request ( method: GET, path: /api/projects, query: None, headers: Some({"Authorization": ["Bearer abc"]}), body: Missing )
+(node:5128) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-17T00:55:54.003820Z  INFO ThreadId(13) pact_verifier::provider_client: Received response: HTTP Response ( status: 200, headers: Some({"date": ["Tue, 17 Nov 2026 00:55:53 GMT"], "access-control-allow-origin": ["*"], "etag": ["W/\"a8-0YTkLnLQNscBRUQDDiwa3nijqQw\""], "connection": ["close"], "x-powered-by": ["Express"], "content-type": ["application/json; charset=utf-8"], "content-length": ["168"]}), body: Present(168 bytes, application/json;charset=utf-8) )
+2026-11-17T00:55:54.005185Z  INFO ThreadId(13) pact_verifier: Running teardown provider state change handler 'ana tiene un proyecto' for 'un GET a /api/projects'
+2026-11-17T00:55:54.007716Z  INFO ThreadId(13) pact_verifier: Running setup provider state change handler with empty state for 'un GET a /api/projects sin token'
+  console.log
+    [21:55:53.998] WARN (5128): pact@17.1.4: no state handler found for state: ""
+
+      at Object.write (node_modules/@pact-foundation/pact-core/src/logger/pino.ts:17:17)
+
+2026-11-17T00:55:54.020370Z  INFO ThreadId(13) pact_verifier: Running provider verification for 'un GET a /api/projects sin token'
+2026-11-17T00:55:54.020448Z  INFO ThreadId(13) pact_verifier::provider_client: Sending request to provider at http://127.0.0.1:55106/
+2026-11-17T00:55:54.020454Z  INFO ThreadId(13) pact_verifier::provider_client: Sending request HTTP Request ( method: GET, path: /api/projects, query: None, headers: None, body: Missing )
+2026-11-17T00:55:54.027463Z  INFO ThreadId(13) pact_verifier::provider_client: Received response: HTTP Response ( status: 401, headers: Some({"content-type": ["application/json; charset=utf-8"], "content-length": ["82"], "date": ["Tue, 17 Nov 2026 00:55:54 GMT"], "connection": ["close"], "x-powered-by": ["Express"], "etag": ["W/\"52-0EkEsmj6oboEC6oDMAawVXZ+8ZM\""], "access-control-allow-origin": ["*"]}), body: Present(82 bytes, application/json;charset=utf-8) )
+2026-11-17T00:55:54.028443Z  INFO ThreadId(13) pact_verifier: Running teardown provider state change handler with empty state for 'un GET a /api/projects sin token'
+2026-11-17T00:55:54.030608Z  INFO ThreadId(13) pact_verifier: Running setup provider state change handler 'la tarea task-1 tiene comentarios' for 'un GET a /api/tasks/task-1/comments'
+2026-11-17T00:55:54.063641Z  INFO ThreadId(13) pact_verifier: Running provider verification for 'un GET a /api/tasks/task-1/comments'
+2026-11-17T00:55:54.063731Z  INFO ThreadId(13) pact_verifier::provider_client: Sending request to provider at http://127.0.0.1:55106/
+2026-11-17T00:55:54.063738Z  INFO ThreadId(13) pact_verifier::provider_client: Sending request HTTP Request ( method: GET, path: /api/tasks/task-1/comments, query: None, headers: Some({"Authorization": ["Bearer abc"]}), body: Missing )
+2026-11-17T00:55:54.073547Z  INFO ThreadId(13) pact_verifier::provider_client: Received response: HTTP Response ( status: 200, headers: Some({"access-control-allow-origin": ["*"], "etag": ["W/\"7c-7ekzPmIToLEWspN33oOAUIqbDpY\""], "date": ["Tue, 17 Nov 2026 00:55:54 GMT"], "content-length": ["124"], "x-powered-by": ["Express"], "content-type": ["application/json; charset=utf-8"], "connection": ["close"]}), body: Present(124 bytes, application/json;charset=utf-8) )
+2026-11-17T00:55:54.074684Z  INFO ThreadId(13) pact_verifier: Running teardown provider state change handler 'la tarea task-1 tiene comentarios' for 'un GET a /api/tasks/task-1/comments'
+2026-11-17T00:55:54.077295Z  INFO ThreadId(13) pact_verifier: Running setup provider state change handler 'existe ana@test.com con contraseña Password1' for 'un POST a /api/auth/login con credenciales válidas'
+2026-11-17T00:55:54.165253Z  INFO ThreadId(13) pact_verifier: Running provider verification for 'un POST a /api/auth/login con credenciales válidas'
+2026-11-17T00:55:54.165335Z  INFO ThreadId(13) pact_verifier::provider_client: Sending request to provider at http://127.0.0.1:55106/
+2026-11-17T00:55:54.165342Z  INFO ThreadId(13) pact_verifier::provider_client: Sending request HTTP Request ( method: POST, path: /api/auth/login, query: None, headers: Some({"Content-Type": ["application/json"]}), body: Present(47 bytes) )
+2026-11-17T00:55:54.249540Z  INFO ThreadId(13) pact_verifier::provider_client: Received response: HTTP Response ( status: 200, headers: Some({"content-length": ["283"], "etag": ["W/\"11b-Jr49K0xkHDxwwsmnKAMVVK5ed/g\""], "date": ["Tue, 17 Nov 2026 00:55:54 GMT"], "connection": ["close"], "access-control-allow-origin": ["*"], "content-type": ["application/json; charset=utf-8"], "x-powered-by": ["Express"]}), body: Present(283 bytes, application/json;charset=utf-8) )
+2026-11-17T00:55:54.250373Z  INFO ThreadId(13) pact_verifier: Running teardown provider state change handler 'existe ana@test.com con contraseña Password1' for 'un POST a /api/auth/login con credenciales válidas'
+2026-11-17T00:55:54.252363Z  INFO ThreadId(13) pact_verifier: Running setup provider state change handler 'ana tiene una sesión válida' for 'un POST a /api/projects con nombre de 101 caracteres'
+2026-11-17T00:55:54.259274Z  INFO ThreadId(13) pact_verifier: Running provider verification for 'un POST a /api/projects con nombre de 101 caracteres'
+2026-11-17T00:55:54.259356Z  INFO ThreadId(13) pact_verifier::provider_client: Sending request to provider at http://127.0.0.1:55106/
+2026-11-17T00:55:54.259363Z  INFO ThreadId(13) pact_verifier::provider_client: Sending request HTTP Request ( method: POST, path: /api/projects, query: None, headers: Some({"Content-Type": ["application/json"], "Authorization": ["Bearer abc"]}), body: Present(112 bytes) )
+2026-11-17T00:55:54.263617Z  INFO ThreadId(13) pact_verifier::provider_client: Received response: HTTP Response ( status: 400, headers: Some({"etag": ["W/\"68-5UgR10ojGiRAJqcXYTmR70j9MIw\""], "date": ["Tue, 17 Nov 2026 00:55:54 GMT"], "connection": ["close"], "content-type": ["application/json; charset=utf-8"], "x-powered-by": ["Express"], "access-control-allow-origin": ["*"], "content-length": ["104"]}), body: Present(104 bytes, application/json;charset=utf-8) )
+2026-11-17T00:55:54.264859Z  INFO ThreadId(13) pact_verifier: Running teardown provider state change handler 'ana tiene una sesión válida' for 'un POST a /api/projects con nombre de 101 caracteres'
+2026-11-17T00:55:54.266857Z  WARN ThreadId(13) pact_matching::metrics: 
+
+Please note:
+We are tracking events anonymously to gather important usage statistics like Pact version and operating system. To disable tracking, set the 'PACT_DO_NOT_TRACK' environment variable to 'true'.
+
+
+
+Verifying a pact between TaskFlowWeb and TaskFlowAPI
+
+  un GET a /api/projects (1ms loading, 84ms verification)
+     Given ana tiene un proyecto
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json" (OK)
+      has a matching body (OK)
+
+  un GET a /api/projects sin token (1ms loading, 22ms verification)
+    returns a response which
+      has status code 401 (OK)
+      includes headers
+        "Content-Type" with value "application/json" (OK)
+      has a matching body (OK)
+
+  un GET a /api/tasks/task-1/comments (1ms loading, 46ms verification)
+     Given la tarea task-1 tiene comentarios
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json" (OK)
+      has a matching body (FAILED)
+
+  un POST a /api/auth/login con credenciales válidas (1ms loading, 175ms verification)
+     Given existe ana@test.com con contraseña Password1
+    returns a response which
+      has status code 200 (OK)
+      includes headers
+        "Content-Type" with value "application/json" (OK)
+      has a matching body (OK)
+
+  un POST a /api/projects con nombre de 101 caracteres (1ms loading, 14ms verification)
+     Given ana tiene una sesión válida
+    returns a response which
+      has status code 400 (OK)
+      includes headers
+        "Content-Type" with value "application/json" (OK)
+      has a matching body (OK)
+
+
+Failures:
+
+1) Verifying a pact between TaskFlowWeb and TaskFlowAPI Given la tarea task-1 tiene comentarios - un GET a /api/tasks/task-1/comments
+    1.1) has a matching body
+           $[0] -> Actual map is missing the following keys: body
+
+There were 1 pact failures
+
+  console.log
+    [21:55:54.392] ERROR (5128): pact-core@20.2.0: Verification unsuccessful
+
+      at Object.write (node_modules/@pact-foundation/pact-core/src/logger/pino.ts:17:17)
+
+FAIL contract-tests/provider/verify.pact.test.ts
+  Verificación del provider: TaskFlowAPI
+    × cumple el contrato con TaskFlowWeb (563 ms)
+
+  ● Verificación del provider: TaskFlowAPI › cumple el contrato con TaskFlowWeb
+
+    {"errors":[{"interaction":"Verifying a pact between TaskFlowWeb and TaskFlowAPI Given la tarea task-1 tiene comentarios - un GET a /api/tasks/task-1/comments","mismatch":{"interactionId":"","mismatches":[{"actual":"[\"authorId\",\"createdAt\",\"id\",\"taskId\",\"text\"]","expected":"[\"authorId\",\"body\",\"createdAt\",\"id\",\"taskId\"]","mismatch":"Actual map is missing the following keys: body","path":"$[0]","type":"BodyMismatch"}],"type":"mismatches"}}],"interactionResults":[{"consumer":"TaskFlowWeb","description":"un GET a /api/projects","duration":"84ms","pending":false,"provider":"TaskFlowAPI","providerStates":["ana tiene un proyecto"],"result":"OK"},{"consumer":"TaskFlowWeb","description":"un GET a /api/projects sin token","duration":"22ms","pending":false,"provider":"TaskFlowAPI","providerStates":[],"result":"OK"},{"consumer":"TaskFlowWeb","description":"un GET a /api/tasks/task-1/comments","duration":"46ms","mismatch":{"interactionId":"","mismatches":[{"actual":"[\"authorId\",\"createdAt\",\"id\",\"taskId\",\"text\"]","expected":"[\"authorId\",\"body\",\"createdAt\",\"id\",\"taskId\"]","mismatch":"Actual map is missing the following keys: body","path":"$[0]","type":"BodyMismatch"}],"type":"mismatches"},"pending":false,"provider":"TaskFlowAPI","providerStates":["la tarea task-1 tiene comentarios"],"result":"Error"},{"consumer":"TaskFlowWeb","description":"un POST a /api/auth/login con credenciales válidas","duration":"175ms","pending":false,"provider":"TaskFlowAPI","providerStates":["existe ana@test.com con contraseña Password1"],"result":"OK"},{"consumer":"TaskFlowWeb","description":"un POST a /api/projects con nombre de 101 caracteres","duration":"14ms","pending":false,"provider":"TaskFlowAPI","providerStates":["ana tiene una sesión válida"],"result":"OK"}],"notices":[],"output":["\nVerifying a pact between \u001b[1mTaskFlowWeb\u001b[0m and \u001b[1mTaskFlowAPI\u001b[0m","","  un GET a /api/projects (1ms loading, 84ms verification)","     Given ana tiene un proyecto","    returns a response which","      has status code \u001b[1m200\u001b[0m (\u001b[32mOK\u001b[0m)","      includes headers","        \"\u001b[1mContent-Type\u001b[0m\" with value \"\u001b[1mapplication/json\u001b[0m\" (\u001b[32mOK\u001b[0m)","      has a matching body (\u001b[32mOK\u001b[0m)","","  un GET a /api/projects sin token (1ms loading, 22ms verification)","    returns a response which","      has status code \u001b[1m401\u001b[0m (\u001b[32mOK\u001b[0m)","      includes headers","        \"\u001b[1mContent-Type\u001b[0m\" with value \"\u001b[1mapplication/json\u001b[0m\" (\u001b[32mOK\u001b[0m)","      has a matching body (\u001b[32mOK\u001b[0m)","","  un GET a /api/tasks/task-1/comments (1ms loading, 46ms verification)","     Given la tarea task-1 tiene comentarios","    returns a response which","      has status code \u001b[1m200\u001b[0m (\u001b[32mOK\u001b[0m)","      includes headers","        \"\u001b[1mContent-Type\u001b[0m\" with value \"\u001b[1mapplication/json\u001b[0m\" (\u001b[32mOK\u001b[0m)","      has a matching body (\u001b[31mFAILED\u001b[0m)","","  un POST a /api/auth/login con credenciales válidas (1ms loading, 175ms verification)","     Given existe ana@test.com con contraseña Password1","    returns a response which","      has status code \u001b[1m200\u001b[0m (\u001b[32mOK\u001b[0m)","      includes headers","        \"\u001b[1mContent-Type\u001b[0m\" with value \"\u001b[1mapplication/json\u001b[0m\" (\u001b[32mOK\u001b[0m)","      has a matching body (\u001b[32mOK\u001b[0m)","","  un POST a /api/projects con nombre de 101 caracteres (1ms loading, 14ms verification)","     Given ana tiene una sesión válida","    returns a response which","      has status code \u001b[1m400\u001b[0m (\u001b[32mOK\u001b[0m)","      includes headers","        \"\u001b[1mContent-Type\u001b[0m\" with value \"\u001b[1mapplication/json\u001b[0m\" (\u001b[32mOK\u001b[0m)","      has a matching body (\u001b[32mOK\u001b[0m)","","\nFailures:\n","1) Verifying a pact between TaskFlowWeb and TaskFlowAPI Given la tarea task-1 tiene comentarios - un GET a /api/tasks/task-1/comments","    1.1) has a matching body","           \u001b[1m$[0]\u001b[0m -> Actual map is missing the following keys: body","\nThere were 1 pact failures\n"],"pendingErrors":[],"result":false}
+
+      at node_modules/@pact-foundation/pact-core/src/verifier/nativeVerifier.ts:52:20
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 1 total
+Snapshots:   0 total
+Time:        3.589 s, estimated 4 s
+Ran all test suites matching /provider/i.
+# exit code: 1

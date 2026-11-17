@@ -198,7 +198,7 @@ Lo que se puede probar abajo se prueba abajo:
 | Nivel | Dónde | Qué cubre |
 |-------|-------|-----------|
 | Unitarios | `server/tests/unit/` | Lógica pura sin base ni HTTP: transiciones de estado, validaciones, ids y fechas, armado de filtros |
-| Contrato | `client/src/contracts/api.contract.ts` + `server/tests/contract/` | El frontend declara qué status y qué campos espera de cada endpoint que usa; la API real se verifica contra eso |
+| Contrato | `client/src/contracts/api.contract.ts` + `server/tests/contract/`; Pact en `server/contract-tests/` | El frontend declara qué status y qué campos espera de cada endpoint que usa; la API real se verifica contra eso. Pact: el consumer genera `server/pacts/*.json` y la API real lo verifica |
 | Integración | `server/tests/*.test.ts` | Endpoints con Supertest contra SQLite, incluidas las reglas de negocio y permisos |
 | E2E | `e2e/tests/` | Flujos críticos en el navegador (golden path, login inválido, alta de miembros) |
 
@@ -210,6 +210,18 @@ en los tipos sin actualizar el contrato, `tsc` del cliente falla. El test
 `server/tests/contract/api.contract.test.ts` ejecuta cada interacción contra
 la API y termina verificando que no haya quedado ninguna sin probar. Si el
 frontend necesita algo nuevo de la API, se agrega primero al contrato.
+
+### Contrato con Pact (consumer-driven)
+
+Al lado del verificador casero hay contract testing con
+[Pact](https://docs.pact.io/) (`@pact-foundation/pact` 17.1.4). El consumer
+`TaskFlowWeb` (`server/contract-tests/consumer/`) declara 5 interacciones
+(proyectos con y sin token, nombre de más de 100 caracteres, login y
+comentarios) y genera `server/pacts/TaskFlowWeb-TaskFlowAPI.json`; el provider
+`TaskFlowAPI` (`server/contract-tests/provider/`) levanta la API real y la
+verifica contra ese archivo. Se corre con `npm run test:pact` (consumer y
+después provider) y no forma parte de `npm test`. Detalle, evidencia de la
+ruptura y discusión en [`docs/pact.md`](docs/pact.md).
 
 ### Bugs conocidos
 

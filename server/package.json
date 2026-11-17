@@ -16,7 +16,10 @@
     "test:unit": "jest --runInBand tests/unit",
     "test:contract": "jest --runInBand tests/contract",
     "test:bugs": "jest --runInBand tests/bugs.test.ts",
-    "lint": "eslint src --ext .ts"
+    "lint": "eslint src --ext .ts",
+    "test:pact:consumer": "jest -c jest.pact.config.js consumer",
+    "test:pact:provider": "jest -c jest.pact.config.js provider",
+    "test:pact": "npm run test:pact:consumer && npm run test:pact:provider"
   },
   "dependencies": {
     "@prisma/client": "6.19.3",
@@ -27,6 +30,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
+    "@pact-foundation/pact": "17.1.4",
     "@types/bcryptjs": "2.4.6",
     "@types/cors": "2.8.17",
     "@types/express": "4.17.21",
