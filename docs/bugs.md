@@ -29,7 +29,7 @@ $env:SHOW_BUGS=1; npm test        # Windows PowerShell
 | [BUG-16](#bug-16) | El contador de intentos fallidos no se reinicia tras un login exitoso | Alta | US-02 | Integración | Abierto |
 | [BUG-20](#bug-20) | Borrar un proyecto deja comentarios e historial huérfanos | Alta | US-10 | Integración | Abierto |
 | [BUG-21](#bug-21) | Los JWT se firman con un secreto por defecto público y se pueden forjar | Alta | US-02, Seguridad | Manual (curl) | Abierto |
-| [BUG-22](#bug-22) | El listado de tareas tarda más de 5 s (p95) con 5.000 tareas | Alta | US-07, Rendimiento 1-3 | Performance (curl / k6) | Abierto |
+| [BUG-22](#bug-22) | El listado de tareas tarda 25,6 s (p95) con 5.000 tareas y 20 usuarios | Alta | US-07, Rendimiento 1-3 | Performance (curl / k6) | Abierto |
 | [BUG-02](#bug-02) | Se aceptan contraseñas de 7 caracteres | Media | US-01, US-17 | Unitario | ✅ Resuelto |
 | [BUG-04](#bug-04) | Se aceptan fechas de vencimiento inexistentes (2026-02-30) | Media | US-16 | Unitario | Abierto |
 | [BUG-10](#bug-10) | La búsqueda distingue mayúsculas de minúsculas | Media | US-07 | Integración | Abierto |
@@ -189,13 +189,13 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Causa probable:** `middleware/auth.ts:5` — `process.env.JWT_SECRET ?? 'taskflow-dev-secret'`.
 
 ### BUG-22
-**El listado de tareas tarda más de 5 s (p95) con 5.000 tareas** · Severidad: Alta · US-07 (criterio 7), Rendimiento 1, 2 y 3
+**El listado de tareas tarda 25,6 s (p95) con 5.000 tareas y 20 usuarios** · Severidad: Alta · US-07 (criterio 7), Rendimiento 1, 2 y 3
 
 - **Precondiciones:** `npm --prefix server run db:seed:large` (5.000 tareas y 20.000 comentarios en un proyecto).
-- **Pasos:** `GET /api/projects/<proyecto grande>/tasks` 20 veces con 1 usuario (o el escenario k6 con 20 VUs).
+- **Pasos:** `k6 run -e VUS=20 -e DURATION=1m performance/scenarios/api-load.k6.js`.
 - **Esperado:** p95 ≤ 500 ms, respuesta paginada.
-- **Obtenido:** p95 5.633 ms, 1,86 MB por respuesta. Con la seed chica, 16 ms.
-- **Test:** `performance/scenarios/api-load.k6.js` (threshold `p(95)<500`); medición en `docs/evidencias/perf-curl-preliminar.txt`. Issue: [ISSUE-18](issues/ISSUE-18-listado-tareas-lento-con-volumen.md). Detalle en [`performance.md`](performance.md).
+- **Obtenido:** p95 25.590 ms con 20 VUs (0 % de errores, 0,81 iteraciones/s), 1,86 MB por respuesta; con 1 usuario (curl) p95 5.633 ms. Con la seed chica, p95 17,68 ms.
+- **Test:** `performance/scenarios/api-load.k6.js` (threshold `p(95)<500`); salidas en `docs/evidencias/k6-seed-chica.txt` y `k6-seed-grande.txt`. Issue: [ISSUE-18](issues/ISSUE-18-listado-tareas-lento-con-volumen.md). Detalle en [`performance.md`](performance.md).
 - **Causa probable:** BUG-11 (no pagina) + N+1 en `tasks.controller.ts:35-43` (2 consultas por tarea → ~10.001 por request).
 
 ## Medios

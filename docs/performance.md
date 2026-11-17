@@ -21,9 +21,9 @@ npm --prefix server run db:seed:large
 k6 run -e VUS=20 -e DURATION=1m performance/scenarios/api-load.k6.js | tee docs/evidencias/k6-seed-grande.txt
 ```
 
-> **Estado al 16/11/2026 23:10:** k6 **no está instalado** en la máquina (`k6 version` → no encontrado), así que las corridas de k6 quedan pendientes (`winget install k6 --source winget`). Para no dejar la sección sin datos se tomó una **medición preliminar con curl** (20 requests secuenciales, 1 usuario) contra la misma API y el mismo endpoint: [`evidencias/perf-curl-preliminar.txt`](evidencias/perf-curl-preliminar.txt). No reemplaza a k6 (no hay concurrencia ni error rate bajo carga), pero ya muestra la tendencia.
+> **Corridas de k6 del 16/11/2026 (22:40, UTC-3):** k6 v2.4.0, después de `npm run db:reset` (seed chica) y de `npm --prefix server run db:seed:large` sobre la misma API, sin reiniciarla. Salidas completas: [`evidencias/k6-seed-chica.txt`](evidencias/k6-seed-chica.txt) y [`evidencias/k6-seed-grande.txt`](evidencias/k6-seed-grande.txt). Antes de tener k6 se tomó una medición con curl (20 requests secuenciales, 1 usuario): [`evidencias/perf-curl-preliminar.txt`](evidencias/perf-curl-preliminar.txt).
 >
-> Además, `npm run db:reset` fue **bloqueado por Prisma** (pide consentimiento explícito del usuario cuando lo ejecuta un agente de IA). La "seed chica" medida fue la base de `npm run db:setup` más los datos que dejaron las pruebas de seguridad (unas pocas tareas extra). Al correr k6, hacer el `db:reset` a mano.
+> Las métricas `http_req_*` de k6 incluyen las 2 requests de `setup()` (login y `GET /projects`), por eso el mínimo de la seed grande es 6 ms; no cambian el p95.
 
 ## Entorno
 
@@ -31,19 +31,23 @@ AMD Ryzen 5 4500 (6 núcleos), 16 GB RAM · Windows 11 Pro 10.0.26200 · Node 22
 
 ## Resultados
 
-| | Seed chica | Seed grande |
+| | Seed chica (k6, 1 VU, 30 s) | Seed grande (k6, 20 VUs, 1 min) |
 |---|---|---|
-| Datos del proyecto medido | `proj-1` "Rediseño del sitio" (~9 tareas) | `proj-5` "[Carga] Proyecto grande" (5.000 tareas, 20.000 comentarios) |
-| Tamaño de la respuesta | 2,3 KB | **1,86 MB** (las 5.000 tareas en una sola respuesta) |
-| curl, 1 usuario, 20 requests: p50 | 13 ms | **4.082 ms** |
-| curl, 1 usuario, 20 requests: p95 | 16 ms | **5.633 ms** |
-| curl: errores | 0 / 20 (todas 200) | 0 / 20 (todas 200) |
-| k6 p95 (`http_req_duration`) | pendiente (k6) | pendiente (k6) |
-| k6 error rate (`http_req_failed`) | pendiente | pendiente |
-| k6 iteraciones/s | pendiente | pendiente |
-| ¿Pasa los thresholds? | Con 16 ms de p95 en curl, se espera que **sí** | **No**: ya con 1 usuario el p95 es 11 veces el umbral de 500 ms; con 20 VUs va a ser peor (las requests se encolan en el único proceso de Node y en SQLite) |
+| Proyecto medido | "Rediseño del sitio" (seed de `db:reset`) | `proj-4` "[Carga] Proyecto grande" (5.000 tareas, 20.000 comentarios) |
+| Tamaño de la respuesta | ~2 KB (63 kB recibidos en 32 requests) | **~1,86 MB** (112 MB recibidos en 62 requests) |
+| **p95** `http_req_duration` | **17,68 ms** | **25.590 ms (25,6 s)** |
+| Mediana / promedio | 11,67 ms / 13,18 ms | 22.760 ms / 22.490 ms |
+| Máximo | 67,23 ms | 26.050 ms |
+| **Error rate** `http_req_failed` | **0,00 %** (0 de 32) | **0,00 %** (0 de 62) |
+| **Iteraciones/s** | **0,99** (30 iteraciones) | **0,81** (60 iteraciones) |
+| Requests/s | 1,05 | 0,84 |
+| Duración de la iteración (p95) | 1,01 s | 26,59 s |
+| **¿Pasa los thresholds?** | ✅ Sí: `p(95)<500` (17,68 ms) y `rate<0.01` (0 %) | ❌ **No**: `p(95)<500` falla (25,59 s, **51 veces el umbral**); `rate<0.01` pasa. k6 termina con exit code 99 |
+| curl, 1 usuario, 20 requests (preliminar): p95 | 16 ms | 5.633 ms |
 
-Crecimiento: ×580 en tiempo para ×555 en cantidad de tareas → el tiempo crece **linealmente con los datos**, cuando el criterio de la spec pide que no dependa del tamaño del resultado.
+**Lectura.** Con 20 VUs el sistema **no escala**: hay 20 veces más usuarios pero el throughput baja de 0,99 a 0,81 iteraciones/s. Cada request de la seed grande cuesta ~1,1 s del único proceso de Node (5.000 tareas × 2 consultas), así que las 20 requests concurrentes se encolan: 20 × ~1,1 s ≈ 22 s, que coincide con la mediana medida (22,8 s). No hay errores HTTP porque nada corta la request (no hay timeout), pero para el usuario el tablero no carga.
+
+Crecimiento con 1 usuario (curl): ×350 en el p95 para ×555 en cantidad de tareas. Con 20 usuarios (k6): p95 ×1.450 respecto de la seed chica. El tiempo crece **linealmente con los datos** y además se multiplica con la concurrencia, cuando el criterio de la spec pide que no dependa del tamaño del resultado.
 
 ## Hipótesis: qué crece con los datos
 
@@ -57,7 +61,7 @@ Mirando `server/src/modules/tasks/tasks.controller.ts`, `tasks.repository.ts` y 
 Criterios de Rendimiento de la spec que se violan:
 
 - **Rendimiento 1:** "Todo endpoint de listado devuelve resultados paginados; ningún endpoint devuelve una colección completa sin límite." → devuelve las 5.000.
-- **Rendimiento 2:** "Con un volumen de 5.000 tareas y 20.000 comentarios, el tiempo de respuesta del listado de tareas (percentil 95) no supera los 500 ms." → p95 5.633 ms con 1 usuario.
+- **Rendimiento 2:** "Con un volumen de 5.000 tareas y 20.000 comentarios, el tiempo de respuesta del listado de tareas (percentil 95) no supera los 500 ms." → p95 **25.590 ms** con 20 VUs (k6) y 5.633 ms con 1 usuario (curl).
 - **Rendimiento 3:** "El número de consultas a la base de datos por request no depende de la cantidad de resultados devueltos." → 2 consultas por tarea.
 
 Issue: [ISSUE-18](issues/ISSUE-18-listado-tareas-lento-con-volumen.md).
