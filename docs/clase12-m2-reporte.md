@@ -25,7 +25,7 @@ Conclusión: sí hay 2+ vulnerabilidades HIGH/CRITICAL. Las de la raíz son de d
 | Severidad | **CRITICAL** |
 | CVSS 3.1 (estimado) | 8.1 — AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N |
 | Criterio | Seguridad 1: "Toda entrada del usuario se trata como dato y nunca se concatena a una consulta a la base de datos" · US-07 |
-| Relacionado | BUG-09, [ISSUE-07](issues/ISSUE-07-sql-injection-busqueda.md) |
+| Relacionado | BUG-09, [ISSUE-07](issues/ISSUE-07-sql-injection-busqueda.md), GitHub [#8](https://github.com/joaquinbauza/taskflow_2026_s2/issues/8) |
 
 **Descripción.** `GET /api/projects/:id/tasks?search=…` arma el SQL concatenando `search` y lo ejecuta con `$queryRawUnsafe` (`server/src/modules/tasks/tasks.repository.ts`). Un usuario autenticado puede salir del filtro del proyecto.
 
@@ -46,6 +46,7 @@ Conclusión: sí hay 2+ vulnerabilidades HIGH/CRITICAL. Las de la raíz son de d
 | Severidad | **HIGH** |
 | CVSS 3.1 (estimado) | 8.8 — AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N cuando falta `JWT_SECRET` (caso del `.env.example` actual) |
 | Criterio | Seguridad (autenticación): solo la API emite tokens válidos; US-02 c7 |
+| Relacionado | BUG-21, [ISSUE-17](issues/ISSUE-17-secreto-jwt-por-defecto.md), GitHub [#18](https://github.com/joaquinbauza/taskflow_2026_s2/issues/18) |
 
 **Descripción.** `server/src/middleware/auth.ts`: `export const JWT_SECRET = process.env.JWT_SECRET ?? 'taskflow-dev-secret'`. `server/.env.example` no define `JWT_SECRET`, así que una instalación siguiendo el README firma con un secreto público (está en el repo).
 
