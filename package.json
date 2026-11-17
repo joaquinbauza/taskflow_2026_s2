@@ -25,6 +25,7 @@
     "postinstall": "npm --prefix server install && npm --prefix client install"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@eslint/js": "^9.39.5",
     "@playwright/test": "1.49.1",
     "concurrently": "9.1.0",
