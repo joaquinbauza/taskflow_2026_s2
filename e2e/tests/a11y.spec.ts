@@ -24,8 +24,9 @@ const TAGS_WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']
 
 /** Completar después de corregir una violación. Ej.: regla: 'label' */
 const VERIFICAR: { regla: string | null; vistas: string[] } = {
-  regla: null,
-  vistas: ['Login'],
+  // ACC-01: inputs de etiqueta y comentario sin nombre accesible (corregido en TaskDetailPage.tsx)
+  regla: 'label',
+  vistas: ['Detalle de tarea'],
 }
 
 // ── Vistas a auditar ────────────────────────────────────────────────────────

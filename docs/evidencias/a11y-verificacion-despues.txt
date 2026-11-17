@@ -1,0 +1,34 @@
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": SQLite database "e2e.db" at "file:C:\Users\Usuario\taskflow_2026_s2\e2e\.tmp\e2e.db"
+
+SQLite database e2e.db created at file:C:\Users\Usuario\taskflow_2026_s2\e2e\.tmp\e2e.db
+
+Your database is now in sync with your Prisma schema. Done in 94ms
+
+
+Running 6 tests using 1 worker
+
+
+=== Login: 0 regla(s) violada(s) ===
+  ok 1 [chromium] › a11y.spec.ts:118:9 › Informe de accesibilidad WCAG 2.1 AA › Login: informe de violaciones (899ms)
+
+=== Registro: 0 regla(s) violada(s) ===
+  ok 2 [chromium] › a11y.spec.ts:118:9 › Informe de accesibilidad WCAG 2.1 AA › Registro: informe de violaciones (807ms)
+
+=== Proyectos: 0 regla(s) violada(s) ===
+  ok 3 [chromium] › a11y.spec.ts:118:9 › Informe de accesibilidad WCAG 2.1 AA › Proyectos: informe de violaciones (1.2s)
+
+=== Detalle de proyecto: 0 regla(s) violada(s) ===
+  ok 4 [chromium] › a11y.spec.ts:118:9 › Informe de accesibilidad WCAG 2.1 AA › Detalle de proyecto: informe de violaciones (1.2s)
+
+=== Detalle de tarea: 0 regla(s) violada(s) ===
+  ok 5 [chromium] › a11y.spec.ts:118:9 › Informe de accesibilidad WCAG 2.1 AA › Detalle de tarea: informe de violaciones (1.3s)
+  ok 6 [chromium] › a11y.spec.ts:146:9 › Verificación de la corrección › Detalle de tarea: ya no hay violaciones de "label" (1.2s)
+
+  6 passed (14.5s)
+
+To open last HTML report run:
+
+  npx playwright show-report
+

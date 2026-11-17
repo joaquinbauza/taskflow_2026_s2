@@ -1,0 +1,49 @@
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": SQLite database "e2e.db" at "file:C:\Users\Usuario\taskflow_2026_s2\e2e\.tmp\e2e.db"
+
+SQLite database e2e.db created at file:C:\Users\Usuario\taskflow_2026_s2\e2e\.tmp\e2e.db
+
+Your database is now in sync with your Prisma schema. Done in 93ms
+
+
+Running 1 test using 1 worker
+
+  x  1 [chromium] › a11y.spec.ts:146:9 › Verificación de la corrección › Detalle de tarea: ya no hay violaciones de "label" (1.6s)
+
+
+  1) [chromium] › a11y.spec.ts:146:9 › Verificación de la corrección › Detalle de tarea: ya no hay violaciones de "label" 
+
+    Error: expect(received).not.toContain(expected) // indexOf
+
+    Expected value: not "label"
+    Received array:     ["label"]
+
+      147 |       await vista.abrir(page)
+      148 |       const ids = (await auditar(page)).map((v) => v.id)
+    > 149 |       expect(ids).not.toContain(VERIFICAR.regla)
+          |                       ^
+      150 |     })
+      151 |   }
+      152 | })
+        at C:\Users\Usuario\taskflow_2026_s2\e2e\tests\a11y.spec.ts:149:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\a11y-Verificación-de-la-co-bea6e-o-hay-violaciones-de-label--chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\a11y-Verificación-de-la-co-bea6e-o-hay-violaciones-de-label--chromium\video-1.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\a11y-Verificación-de-la-co-bea6e-o-hay-violaciones-de-label--chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › a11y.spec.ts:146:9 › Verificación de la corrección › Detalle de tarea: ya no hay violaciones de "label" 
+
+To open last HTML report run:
+
+  npx playwright show-report
+
