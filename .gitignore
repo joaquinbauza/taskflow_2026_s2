@@ -9,3 +9,4 @@ e2e/.tmp/
 playwright-report/
 test-results/
 .DS_Store
+results/
