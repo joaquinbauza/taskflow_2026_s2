@@ -125,7 +125,7 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Pasos:** `PATCH /tasks/task-1` con `{ "dueDate": "2026-09-15" }`; luego `GET /tasks/task-1`.
 - **Esperado:** `dueDate: "2026-09-15"`.
 - **Obtenido:** `dueDate: "2026-09-14"`. En UTC o al este de UTC funciona, por eso puede pasar inadvertido en CI.
-- **Test:** `server/tests/unit/ids.test.ts › [BUG-03]` (corre la conversión en un proceso con `TZ=America/Montevideo`).
+- **Test:** `server/tests/unit/ids.test.ts › [BUG-03]` (corre la conversión en un proceso con `TZ=America/Montevideo`), `server/tests/tareas.integration.test.ts › la fecha devuelta es la misma…` y E2E `e2e/tests/e2e/us-16-vencimiento.spec.ts` (3 casos con `test.fail`: detalle, tablero y fecha pasada). Issue: [ISSUE-01](issues/ISSUE-01-fecha-vencimiento-un-dia-antes.md).
 - **Causa probable:** `ids.ts:38` crea la fecha a medianoche UTC (`new Date('2026-09-15')`) y `ids.ts:44-46` la formatea con `getFullYear/getMonth/getDate` en hora local. Usar los métodos `getUTC*`.
 
 ### BUG-05
@@ -221,7 +221,7 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Pasos:** `POST /tasks/task-1/tags` con `"  Backend "`; con `"bug"` dos veces; con `"bug"` y `"BUG"`.
 - **Esperado:** se guarda `backend`; el segundo `bug` responde 200 sin duplicar; `BUG` es la misma etiqueta que `bug`.
 - **Obtenido:** se guarda `Backend`; el segundo `bug` responde 201 y la tarea queda con dos `bug`; `BUG` se crea como etiqueta aparte.
-- **Test:** `server/tests/bugs.test.ts › BUG-17` (3 tests).
+- **Test:** `server/tests/bugs.test.ts › BUG-17` (3 tests) y E2E `e2e/tests/e2e/us-15-etiquetas.spec.ts` (US-15 c1, c2 y c3 con `test.fail`). Issue: [ISSUE-02](issues/ISSUE-02-etiquetas-no-normalizadas.md).
 - **Causa probable:** `tasks.service.ts:187-190` — no se pasa el nombre a minúsculas y no se controla si la tarea ya tiene la etiqueta (`task_tags` tampoco tiene índice único).
 
 ### BUG-18
