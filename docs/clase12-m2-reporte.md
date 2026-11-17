@@ -100,6 +100,13 @@ Observación adicional (best-practice, no WCAG A/AA en axe): el Detalle de tarea
 4. Detalle de tarea: después de un error al guardar, ¿el lector anuncia el `role="alert"`? ¿El foco queda en el botón Guardar?
 5. No hay elementos clickeables que no sean `<button>`/`<a>` (revisado: los `onClick` están solo en `<button>`).
 
+**Resultado de la confirmación manual (16/11/2026, solo teclado, sin mouse):**
+- ✅ **Login:** se completa y se envía el formulario solo con Tab / Shift+Tab / Enter (`ana@test.com`).
+- ✅ **Navegación:** con Tab y Shift+Tab se recorren todos los controles de Proyectos, Tablero y Miembros, y se entra al tablero y a la pantalla de miembros con Enter.
+- ✅ **Foco visible (SC 2.4.7, AA):** en todo momento se ve qué elemento tiene el foco.
+- No se probó con teclado: agregar un miembro, cambiar el estado de una tarea con las flechas ni guardar en el Detalle de tarea (puntos 3 y 4 de la lista).
+- No se encontraron problemas nuevos: la navegación por teclado no agrega hallazgos a ACC-01..03.
+
 ## 4.4 User Stories de remediación
 
 ### US-SEC-01 · Búsqueda de tareas sin inyección SQL (SEC-01)
@@ -134,4 +141,4 @@ Criterios de aceptación (testeables):
 - [x] 1 violación corregida (`label`) sin cambiar `data-testid`; `VERIFICAR.regla` rojo → verde; E2E siguen pasando (36/36).
 - [x] 3 hallazgos de accesibilidad (ACC-01..03) con SC, nivel, POUR, detección, vista, descripción y fix.
 - [x] 2 User Stories de remediación con 3 criterios testeables cada una.
-- [ ] Confirmación manual con teclado (pendiente, ver lista arriba).
+- [x] Confirmación manual con teclado: login, navegación por Proyectos, Tablero y Miembros, y foco visible (ver resultado arriba).
