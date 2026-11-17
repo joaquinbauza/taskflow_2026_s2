@@ -6,10 +6,12 @@ import { defineConfig, globalIgnores } from "eslint/config";
 
 export default defineConfig([
   // server/ tiene su propio eslint.config.mjs; dist y coverage son archivos generados
-  globalIgnores(["server/**", "**/dist/**", "**/coverage/**", "playwright-report/**", "test-results/**"]),
+  globalIgnores(["server/**", "**/dist/**", "**/coverage/**", "playwright-report/**", "test-results/**", "results/**"]),
   { files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"], plugins: { js }, extends: ["js/recommended"], languageOptions: { globals: globals.browser } },
   tseslint.configs.recommended,
   pluginReact.configs.flat.recommended,
   pluginReact.configs.flat["jsx-runtime"], // desactiva react-in-jsx-scope (React 17+)
   { settings: { react: { version: "detect" } } },
+  // Scripts de k6: corren en el runtime de k6, que define __ENV, __VU y __ITER
+  { files: ["performance/**/*.js"], languageOptions: { globals: { __ENV: "readonly", __VU: "readonly", __ITER: "readonly" } } },
 ]);

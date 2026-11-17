@@ -1,6 +1,6 @@
 # Reporte de bugs — TaskFlow
 
-**Rama:** `main` · **Fecha:** 26/10/2026 (estado actualizado el 16/11/2026, después de mergear todas las ramas) · **Referencia:** `taskflow_especificacion_requerimientos.docx` (v1.0), que es la fuente de verdad.
+**Rama:** `main` · **Fecha:** 26/10/2026 (estado actualizado el 16/11/2026 en la rama `entrega-final`: BUG-21 y BUG-22 nuevos; issues en [`docs/issues/`](issues/)) · **Referencia:** `taskflow_especificacion_requerimientos.docx` (v1.0), que es la fuente de verdad.
 
 **Entorno:** Node ≥ 20, API Express + Prisma + SQLite, frontend React + Vite. Los pasos asumen la API en `http://localhost:3000/api` y el header `Authorization: Bearer <token>` en todo lo que no sea `/auth/*`.
 
@@ -28,6 +28,8 @@ $env:SHOW_BUGS=1; npm test        # Windows PowerShell
 | [BUG-12](#bug-12) | Al crear una tarea se puede forzar el estado (asignación masiva) | Alta | US-05 | Integración | Abierto |
 | [BUG-16](#bug-16) | El contador de intentos fallidos no se reinicia tras un login exitoso | Alta | US-02 | Integración | Abierto |
 | [BUG-20](#bug-20) | Borrar un proyecto deja comentarios e historial huérfanos | Alta | US-10 | Integración | Abierto |
+| [BUG-21](#bug-21) | Los JWT se firman con un secreto por defecto público y se pueden forjar | Alta | US-02, Seguridad | Manual (curl) | Abierto |
+| [BUG-22](#bug-22) | El listado de tareas tarda más de 5 s (p95) con 5.000 tareas | Alta | US-07, Rendimiento 1-3 | Performance (curl / k6) | Abierto |
 | [BUG-02](#bug-02) | Se aceptan contraseñas de 7 caracteres | Media | US-01, US-17 | Unitario | ✅ Resuelto |
 | [BUG-04](#bug-04) | Se aceptan fechas de vencimiento inexistentes (2026-02-30) | Media | US-16 | Unitario | Abierto |
 | [BUG-10](#bug-10) | La búsqueda distingue mayúsculas de minúsculas | Media | US-07 | Integración | Abierto |
@@ -125,7 +127,7 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Pasos:** `PATCH /tasks/task-1` con `{ "dueDate": "2026-09-15" }`; luego `GET /tasks/task-1`.
 - **Esperado:** `dueDate: "2026-09-15"`.
 - **Obtenido:** `dueDate: "2026-09-14"`. En UTC o al este de UTC funciona, por eso puede pasar inadvertido en CI.
-- **Test:** `server/tests/unit/ids.test.ts › [BUG-03]` (corre la conversión en un proceso con `TZ=America/Montevideo`).
+- **Test:** `server/tests/unit/ids.test.ts › [BUG-03]` (corre la conversión en un proceso con `TZ=America/Montevideo`), `server/tests/tareas.integration.test.ts › la fecha devuelta es la misma…` y E2E `e2e/tests/e2e/us-16-vencimiento.spec.ts` (3 casos con `test.fail`: detalle, tablero y fecha pasada). Issue: [ISSUE-01](issues/ISSUE-01-fecha-vencimiento-un-dia-antes.md).
 - **Causa probable:** `ids.ts:38` crea la fecha a medianoche UTC (`new Date('2026-09-15')`) y `ids.ts:44-46` la formatea con `getFullYear/getMonth/getDate` en hora local. Usar los métodos `getUTC*`.
 
 ### BUG-05
@@ -176,6 +178,26 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Test:** `server/tests/bugs.test.ts › BUG-20`.
 - **Causa probable:** en `schema.prisma`, `Comment` y `TaskHistory` no tienen relación con `Task`, así que el `onDelete: Cascade` del proyecto borra las tareas pero no lo que cuelga de ellas. `projects.controller.ts:127` hace un `delete` directo sin limpiar.
 
+### BUG-21
+**Los JWT se firman con un secreto por defecto público y se pueden forjar** · Severidad: Alta · US-02, Seguridad · SEC-02
+
+- **Precondiciones:** `server/.env` copiado de `.env.example` (no define `JWT_SECRET`), como indica el README.
+- **Pasos:** firmar `{ userId: 1, email: 'ana@test.com' }` con `'taskflow-dev-secret'` y llamar a `GET /api/projects` con ese token.
+- **Esperado:** HTTP 401.
+- **Obtenido:** HTTP 200 con los proyectos de ana: suplantación de cualquier usuario.
+- **Test:** manual, `docs/evidencias/seguridad/pruebas-api.md` (sección 5). Issue: [ISSUE-17](issues/ISSUE-17-secreto-jwt-por-defecto.md).
+- **Causa probable:** `middleware/auth.ts:5` — `process.env.JWT_SECRET ?? 'taskflow-dev-secret'`.
+
+### BUG-22
+**El listado de tareas tarda más de 5 s (p95) con 5.000 tareas** · Severidad: Alta · US-07 (criterio 7), Rendimiento 1, 2 y 3
+
+- **Precondiciones:** `npm --prefix server run db:seed:large` (5.000 tareas y 20.000 comentarios en un proyecto).
+- **Pasos:** `GET /api/projects/<proyecto grande>/tasks` 20 veces con 1 usuario (o el escenario k6 con 20 VUs).
+- **Esperado:** p95 ≤ 500 ms, respuesta paginada.
+- **Obtenido:** p95 5.633 ms, 1,86 MB por respuesta. Con la seed chica, 16 ms.
+- **Test:** `performance/scenarios/api-load.k6.js` (threshold `p(95)<500`); medición en `docs/evidencias/perf-curl-preliminar.txt`. Issue: [ISSUE-18](issues/ISSUE-18-listado-tareas-lento-con-volumen.md). Detalle en [`performance.md`](performance.md).
+- **Causa probable:** BUG-11 (no pagina) + N+1 en `tasks.controller.ts:35-43` (2 consultas por tarea → ~10.001 por request).
+
 ## Medios
 
 ### BUG-02
@@ -221,7 +243,7 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Pasos:** `POST /tasks/task-1/tags` con `"  Backend "`; con `"bug"` dos veces; con `"bug"` y `"BUG"`.
 - **Esperado:** se guarda `backend`; el segundo `bug` responde 200 sin duplicar; `BUG` es la misma etiqueta que `bug`.
 - **Obtenido:** se guarda `Backend`; el segundo `bug` responde 201 y la tarea queda con dos `bug`; `BUG` se crea como etiqueta aparte.
-- **Test:** `server/tests/bugs.test.ts › BUG-17` (3 tests).
+- **Test:** `server/tests/bugs.test.ts › BUG-17` (3 tests) y E2E `e2e/tests/e2e/us-15-etiquetas.spec.ts` (US-15 c1, c2 y c3 con `test.fail`). Issue: [ISSUE-02](issues/ISSUE-02-etiquetas-no-normalizadas.md).
 - **Causa probable:** `tasks.service.ts:187-190` — no se pasa el nombre a minúsculas y no se controla si la tarea ya tiene la etiqueta (`task_tags` tampoco tiene índice único).
 
 ### BUG-18
@@ -249,5 +271,5 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 ## Observaciones (sin test, para discutir)
 
 - **El frontend no puede listar miembros.** No existe `GET /projects/:id/members`; `client/src/lib/members.ts` reconstruye la lista con el owner, los asignados de las tareas y un caché en `localStorage`. Un miembro sin tareas agregado desde otro navegador no aparece. Es un hueco del contrato: la UI necesita un dato que la API no ofrece.
-- **Rendimiento 3 (consultas por request).** `tasks.controller.ts:32-43` hace 2 consultas por cada tarea del listado (asignado y cantidad de comentarios): N+1.
+- **Rendimiento 3 (consultas por request).** `tasks.controller.ts:32-43` hace 2 consultas por cada tarea del listado (asignado y cantidad de comentarios): N+1. Medido en BUG-22.
 - **`GET /tasks/:id/comments` no pagina** (Rendimiento 1).

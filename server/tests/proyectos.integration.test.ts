@@ -1,6 +1,7 @@
 import request from 'supertest';
 import { app, auth, createProject, createTask, registerUser } from './helpers';
 import { addMemberDb, archiveProjectDb, db, num } from './db-helpers';
+import { knownBug } from './knownBug';
 
 describe('Proyectos (US-03, US-04, US-09, US-10, US-11)', () => {
   describe('crear', () => {
@@ -88,7 +89,8 @@ describe('Proyectos (US-03, US-04, US-09, US-10, US-11)', () => {
       expect(res.body.map((x: { name: string }) => x.name)).not.toContain('Viejo');
     });
 
-    it('no muestra a un miembro (no owner) los proyectos archivados', async () => {
+    // BUG-19 (docs/bugs.md): corre como falla esperada mientras el bug exista.
+    knownBug('no muestra a un miembro (no owner) los proyectos archivados', async () => {
       const ana = await registerUser('pl-arch-ana@test.com');
       const bob = await registerUser('pl-arch-bob@test.com');
       const p = await createProject(ana.token, 'Viejo');
@@ -217,7 +219,8 @@ describe('Proyectos (US-03, US-04, US-09, US-10, US-11)', () => {
       expect(res.status).toBe(404);
     });
 
-    it('al eliminar el proyecto no quedan comentarios ni historial de sus tareas', async () => {
+    // BUG-20 (docs/bugs.md): corre como falla esperada mientras el bug exista.
+    knownBug('al eliminar el proyecto no quedan comentarios ni historial de sus tareas', async () => {
       const u = await registerUser('pd-cascada@test.com');
       const p = await createProject(u.token, 'Con cosas');
       const t = await createTask(u.token, p.id, { title: 'Tarea', assigneeId: u.id });
@@ -332,7 +335,8 @@ describe('Proyectos (US-03, US-04, US-09, US-10, US-11)', () => {
       expect(lista.body).toEqual([]);
     });
 
-    it('al quitar un miembro sus tareas quedan sin asignado', async () => {
+    // BUG-08 (docs/bugs.md): corre como falla esperada mientras el bug exista.
+    knownBug('al quitar un miembro sus tareas quedan sin asignado', async () => {
       const ana = await registerUser('pr-ana2@test.com');
       const bob = await registerUser('pr-bob2@test.com');
       const p = await createProject(ana.token, 'Equipo');

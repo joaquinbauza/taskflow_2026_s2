@@ -48,14 +48,14 @@ e2e/
 │   ├── clients/       # AuthClient, ProjectsClient, TasksClient, CommentsClient
 │   └── schemas/       # forma esperada de cada respuesta
 ├── tests/
-│   ├── e2e/           # flujos completos por UI
-│   ├── api/           # contrato de la API
-│   └── hybrid/        # preparan por API y validan por UI
+│   ├── e2e/           # flujos por UI (Arrange por API con fixtures, Act y Assert por UI)
+│   └── a11y.spec.ts   # auditoría de accesibilidad con axe-core
 ├── test-data/         # factories (usuario, proyecto, tarea)
-├── utils/
-├── .env.example
-└── playwright.config.ts
+├── global-setup.ts    # crea la base SQLite propia de E2E (e2e/.tmp/e2e.db)
+└── .env.example
 ```
+
+> **Implementación (actualizado 16/11/2026).** `playwright.config.ts` quedó en la raíz del repo (lo usa `npm run test:e2e`). No se crearon `tests/api/` ni `utils/`: el contrato de la API ya lo cubren Jest + Supertest (`server/tests/`) y Pact (`server/contract-tests/`, ver `docs/pact.md`), así que duplicarlo en Playwright no aporta. Todos los tests de `tests/e2e/` son híbridos en el sentido de §2.5.
 
 **Por qué "por capa" y no "por feature":** las features de TaskFlow comparten piezas de UI y de API. El header aparece en todas las pantallas, y el login y la creación de proyecto los necesitan casi todos los tests. Con una estructura por feature esas piezas quedarían duplicadas, o en una carpeta "común" que termina siendo la estructura por capa igual. Una estructura plana deja de servir apenas la suite crece.
 
@@ -93,14 +93,14 @@ Con `test.extend()` se definen:
 - `loggedInPage`: una `page` que ya arranca con sesión iniciada (ver 2.5).
 - Los Page Objects como fixtures (`boardPage`, `taskDetailPage`…), para que el test los reciba listos.
 
-**Por qué:** casi todos los tests necesitan estado previo (contexto, punto 1). Si cada test hiciera su propio login y su propio setup, el boilerplate crecería con cada test nuevo, que es justamente el límite de POM puro que se vio en clase. El teardown automático deja cada test independiente, y eso es lo que permite `fullyParallel: true`.
+**Por qué:** casi todos los tests necesitan estado previo (contexto, punto 1). Si cada test hiciera su propio login y su propio setup, el boilerplate crecería con cada test nuevo, que es justamente el límite de POM puro que se vio en clase. El teardown automático deja cada test independiente (requisito para paralelizar en el futuro; hoy se corre con 1 worker, ver §2.9).
 
 ### 2.5 Patrón híbrido: preparar por API, validar por UI
 
-1. Un `globalSetup` hace `POST /api/auth/login` con el usuario de prueba y obtiene el token.
-2. Guarda un `storageState` con el `localStorage` del origen del front (`taskflow_token` y `taskflow_user`).
-3. Los tests de UI arrancan con ese `storageState`: la página **nace autenticada**, sin pasar por el formulario.
-4. Los datos que el test necesita (proyectos, tareas, comentarios) se crean por API en el fixture.
+1. El fixture `owner` registra por API (`POST /api/auth/register`) un usuario nuevo con email único y obtiene el token. (La base de E2E se crea vacía en `e2e/global-setup.ts`, sin seed, así que no se depende de `ana@test.com`.)
+2. El fixture `loggedInPage` inyecta con `page.addInitScript` el `localStorage` del front (`taskflow_token` y `taskflow_user`).
+3. La página **nace autenticada**, sin pasar por el formulario. Se eligió `addInitScript` por test en lugar de un `storageState` global porque cada test usa su propio usuario (aislamiento de datos, §3).
+4. Los datos que el test necesita (proyectos, tareas, miembros, etiquetas) se crean por API en el fixture `seedProject`, que borra el proyecto al terminar.
 
 El formulario de login se prueba **una sola vez**, en `tests/e2e/login.spec.ts`. El resto de los tests no paga ese costo.
 
@@ -133,16 +133,19 @@ Orden de preferencia: `getByTestId` → `getByRole` / `getByLabel` → `getByTex
 
 ```ts
 retries: process.env.CI ? 2 : 0,
-workers: process.env.CI ? 4 : undefined,
-fullyParallel: true,
+workers: 1,
+fullyParallel: false,
 use: {
   trace: 'on-first-retry',
   screenshot: 'only-on-failure',
   video: 'retain-on-failure',
 },
-reporter: [['html'], ['junit', { outputFile: 'results/junit.xml' }]],
+reporter: [['list'], ['html', { open: 'never' }], ['junit', { outputFile: 'results/junit.xml' }]],
+// proyecto chromium: timezoneId 'America/Montevideo'; webServer de la API con TZ igual
 ```
 
+- **`workers: 1` y `fullyParallel: false` (cambio respecto de la versión original de este ADR).** La suite corre contra **un solo** proceso de API, un solo Vite y **una sola base SQLite** (`e2e/.tmp/e2e.db`). SQLite serializa las escrituras con un lock de archivo: con varios workers escribiendo a la vez aparecen `SQLITE_BUSY`/timeouts que no son bugs de la app sino del entorno de test (flakiness). Además, la cuenta se bloquea tras 5 logins fallidos y el caché de miembros vive en `localStorage`, dos fuentes más de interferencia. Con 1 worker la suite completa tarda ≈1 minuto, así que hoy el paralelismo no paga su costo. Para habilitarlo habría que dar una base (y una API) por worker.
+- **Zona horaria fija.** El navegador (`timezoneId`) y el server (`TZ` en `webServer.env`) corren en `America/Montevideo`: BUG-03 solo aparece al oeste de UTC.
 - `retries` vale 0 en local para no esconder un bug detrás de un segundo intento.
 - Traces, capturas y video se guardan solo cuando algo falla.
 - Se usan dos reporters: HTML para que el equipo investigue y JUnit para que el pipeline interprete el resultado.
@@ -162,7 +165,7 @@ reporter: [['html'], ['junit', { outputFile: 'results/junit.xml' }]],
 
 - Si cambia un locator se corrige en **un solo lugar** (Page Object o Component Object).
 - Los tests se leen como una historia: `boardPage.card('Diseñar logo').moveTo('DONE')`.
-- La suite es rápida, porque el setup va por API y los tests corren en paralelo de forma independiente.
+- La suite es rápida, porque el setup va por API. Los tests son independientes (cada uno crea y borra sus datos), así que se podrían paralelizar el día que haya una base por worker; hoy corren en serie (§2.9).
 - Cuando algo falla en CI quedan traces y reportes para investigar.
 - El mismo framework cubre tests de API, E2E e híbridos.
 
@@ -172,7 +175,8 @@ reporter: [['html'], ['junit', { outputFile: 'results/junit.xml' }]],
 - **Los tests de UI dependen de que la API de login y de creación funcione.** Si `/auth/login` se rompe, fallan casi todos los tests. Se mitiga con el test de API de login, que falla primero y deja claro el origen.
 - **Hay acoplamiento a los `data-testid`.** Si alguien los cambia o los saca del front, se rompen los locators. Igual se corrigen en un solo lugar.
 - **Los datos tienen que estar aislados.** Cada test crea sus propios datos con nombres únicos y los limpia. Si no, el paralelismo genera flakiness.
-- La base SQLite es compartida. Los tests no deberían depender de los datos del seed, salvo de los usuarios de prueba.
+- La base SQLite es compartida. Los tests no dependen de los datos del seed (la base E2E no tiene seed): cada uno registra su propio usuario.
+- **Sin paralelismo** mientras la base sea una sola (§2.9): la suite escala linealmente con la cantidad de tests.
 
 ## 4. Referencias
 

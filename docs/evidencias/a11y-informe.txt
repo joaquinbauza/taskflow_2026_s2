@@ -1,0 +1,42 @@
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": SQLite database "e2e.db" at "file:C:\Users\Usuario\taskflow_2026_s2\e2e\.tmp\e2e.db"
+
+SQLite database e2e.db created at file:C:\Users\Usuario\taskflow_2026_s2\e2e\.tmp\e2e.db
+
+Your database is now in sync with your Prisma schema. Done in 90ms
+
+
+Running 6 tests using 1 worker
+
+
+=== Login: 0 regla(s) violada(s) ===
+  ok 1 [chromium] › a11y.spec.ts:117:9 › Informe de accesibilidad WCAG 2.1 AA › Login: informe de violaciones (821ms)
+
+=== Registro: 0 regla(s) violada(s) ===
+  ok 2 [chromium] › a11y.spec.ts:117:9 › Informe de accesibilidad WCAG 2.1 AA › Registro: informe de violaciones (819ms)
+
+=== Proyectos: 0 regla(s) violada(s) ===
+  ok 3 [chromium] › a11y.spec.ts:117:9 › Informe de accesibilidad WCAG 2.1 AA › Proyectos: informe de violaciones (1.2s)
+
+=== Detalle de proyecto: 0 regla(s) violada(s) ===
+  ok 4 [chromium] › a11y.spec.ts:117:9 › Informe de accesibilidad WCAG 2.1 AA › Detalle de proyecto: informe de violaciones (1.2s)
+
+=== Detalle de tarea: 1 regla(s) violada(s) ===
+
+[CRITICAL] label — Form elements must have labels
+   SC WCAG: 4.1.2  ·  Nivel A
+   Elementos afectados: 2
+   · input[data-testid="tag-add-input"]
+   · textarea[data-testid="comment-add-input"]
+   Más info: https://dequeuniversity.com/rules/axe/4.14/label?application=playwright
+  ok 5 [chromium] › a11y.spec.ts:117:9 › Informe de accesibilidad WCAG 2.1 AA › Detalle de tarea: informe de violaciones (1.2s)
+  -  6 [chromium] › a11y.spec.ts:145:9 › Verificación de la corrección › Login: ya no hay violaciones de "null"
+
+  1 skipped
+  5 passed (13.4s)
+
+To open last HTML report run:
+
+  npx playwright show-report
+

@@ -334,6 +334,7 @@ export default function TaskDetailPage() {
         <form className="form form-inline" data-testid="tag-add-form" onSubmit={onAddTag}>
           <input
             type="text"
+            aria-label="Nueva etiqueta"
             data-testid="tag-add-input"
             value={tagName}
             onChange={(e) => setTagName(e.target.value)}
@@ -349,6 +350,7 @@ export default function TaskDetailPage() {
         <h2>Comentarios</h2>
         <form className="form" data-testid="comment-add-form" onSubmit={onAddComment}>
           <textarea
+            aria-label="Nuevo comentario"
             data-testid="comment-add-input"
             value={commentBody}
             onChange={(e) => setCommentBody(e.target.value)}
