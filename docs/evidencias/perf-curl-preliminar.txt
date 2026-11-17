@@ -1,0 +1,17 @@
+# Medición preliminar con curl (k6 no instalado) · 16/11/2026 ~23:08 (UTC-3)
+# Entorno: AMD Ryzen 5 4500, 16 GB, Windows 11 Pro, Node 22.23.5, API `npm run dev` (server/dev.db), TZ America/Montevideo
+# Método: login de ana@test.com una vez; 20 requests secuenciales GET /api/projects/<id>/tasks;
+#         curl -w "%{time_total} %{http_code} %{size_download}", ordenado; p95 = valor 19 de 20.
+
+SEED CHICA (db:setup + datos de las pruebas de seguridad; db:reset bloqueado por Prisma)
+proyecto=proj-1
+n=20 min=0.010s p50=0.013s p95=0.016s max=0.017s status=200 bytes=2351
+
+$ npm --prefix server run db:seed:large
+Seed grande listo: 200 proyectos de carga, 5000 tareas y 20000 comentarios en el proyecto grande.
+Proyecto grande -> id: 5, nombre: "[Carga] Proyecto grande"
+real 0m2.328s
+
+SEED GRANDE
+proyecto=proj-5
+n=20 min=3.883s p50=4.082s p95=5.633s max=5.733s status=200 bytes=1864058
