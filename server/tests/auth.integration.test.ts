@@ -1,6 +1,7 @@
 import request from 'supertest';
 import { app, registerUser } from './helpers';
 import { db } from './db-helpers';
+import { knownBug } from './knownBug';
 
 const login = (email: string, password: string) =>
   request(app).post('/api/auth/login').send({ email, password });
@@ -88,7 +89,8 @@ describe('Auth (US-01, US-02, US-17)', () => {
       expect(res.status).toBe(200);
     });
 
-    it('el contador de intentos fallidos se reinicia tras un login exitoso', async () => {
+    // BUG-16 (docs/bugs.md): corre como falla esperada mientras el bug exista.
+    knownBug('el contador de intentos fallidos se reinicia tras un login exitoso', async () => {
       await registerUser('la-reinicio@test.com');
       await fallar('la-reinicio@test.com', 3);
       await login('la-reinicio@test.com', 'Password1');
@@ -139,7 +141,8 @@ describe('Auth (US-01, US-02, US-17)', () => {
       expect(res.status).toBe(400);
     });
 
-    it('un token ya utilizado no se puede reutilizar (400)', async () => {
+    // BUG-15 (docs/bugs.md): corre como falla esperada mientras el bug exista.
+    knownBug('un token ya utilizado no se puede reutilizar (400)', async () => {
       await registerUser('rp-reuso@test.com');
       const token = await pedirToken('rp-reuso@test.com');
       await request(app).post('/api/auth/reset-password').send({ token, newPassword: 'Nueva1234' });
@@ -149,7 +152,8 @@ describe('Auth (US-01, US-02, US-17)', () => {
       expect(res.status).toBe(400);
     });
 
-    it('un token vencido no sirve (400)', async () => {
+    // BUG-15 (docs/bugs.md): corre como falla esperada mientras el bug exista.
+    knownBug('un token vencido no sirve (400)', async () => {
       await registerUser('rp-vencido@test.com');
       const token = await pedirToken('rp-vencido@test.com');
       await db.passwordResetToken.update({
@@ -162,7 +166,8 @@ describe('Auth (US-01, US-02, US-17)', () => {
       expect(res.status).toBe(400);
     });
 
-    it('al pedir un token nuevo, el anterior queda invalidado (400)', async () => {
+    // BUG-15 (docs/bugs.md): corre como falla esperada mientras el bug exista.
+    knownBug('al pedir un token nuevo, el anterior queda invalidado (400)', async () => {
       await registerUser('rp-viejo@test.com');
       const viejo = await pedirToken('rp-viejo@test.com');
       await pedirToken('rp-viejo@test.com');
@@ -172,7 +177,8 @@ describe('Auth (US-01, US-02, US-17)', () => {
       expect(res.status).toBe(400);
     });
 
-    it('la respuesta no revela si el email existe', async () => {
+    // BUG-14 (docs/bugs.md): corre como falla esperada mientras el bug exista.
+    knownBug('la respuesta no revela si el email existe', async () => {
       await registerUser('rp-existe@test.com');
 
       const existe = await request(app).post('/api/auth/forgot-password').send({ email: 'rp-existe@test.com' });

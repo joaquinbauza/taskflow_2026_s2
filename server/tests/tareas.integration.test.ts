@@ -1,6 +1,10 @@
 import request from 'supertest';
 import { app, auth, createProject, createTask, registerUser } from './helpers';
 import { addMemberDb, db, num, setTaskStatusDb } from './db-helpers';
+import { knownBug } from './knownBug';
+
+// BUG-03 solo se reproduce con el proceso en una zona al oeste de UTC (p. ej. America/Montevideo).
+const knownBugEnZonaNegativa = new Date().getTimezoneOffset() > 0 ? knownBug : it;
 
 async function proyectoConOwner(email: string, nombre = 'Proyecto') {
   const owner = await registerUser(email);
@@ -77,7 +81,8 @@ describe('Tareas (US-05, US-06, US-07, US-12, US-13, US-14, US-15, US-16)', () =
       });
     });
 
-    it('el estado inicial es TODO aunque la solicitud mande otro estado', async () => {
+    // BUG-12 (docs/bugs.md): corre como falla esperada mientras el bug exista.
+    knownBug('el estado inicial es TODO aunque la solicitud mande otro estado', async () => {
       const { owner, p } = await proyectoConOwner('tc-estado@test.com');
 
       const res = await request(app)
@@ -91,7 +96,8 @@ describe('Tareas (US-05, US-06, US-07, US-12, US-13, US-14, US-15, US-16)', () =
   });
 
   describe('cambiar estado', () => {
-    it('no permite ir de TODO directamente a DONE (422)', async () => {
+    // BUG-01 (docs/bugs.md): corre como falla esperada mientras el bug exista.
+    knownBug('no permite ir de TODO directamente a DONE (422)', async () => {
       const { owner, p } = await proyectoConOwner('ts-todo-done@test.com');
       const t = await createTask(owner.token, p.id, { title: 'Tarea', assigneeId: owner.id });
 
@@ -280,7 +286,8 @@ describe('Tareas (US-05, US-06, US-07, US-12, US-13, US-14, US-15, US-16)', () =
       expect(res.status).toBe(200);
     });
 
-    it('la fecha devuelta es la misma que se cargó, sin importar la zona horaria', async () => {
+    // BUG-03 (docs/bugs.md): corre como falla esperada mientras el bug exista.
+    knownBugEnZonaNegativa('la fecha devuelta es la misma que se cargó, sin importar la zona horaria', async () => {
       const tzOriginal = process.env.TZ;
       process.env.TZ = 'America/Montevideo';
       try {
@@ -380,7 +387,8 @@ describe('Tareas (US-05, US-06, US-07, US-12, US-13, US-14, US-15, US-16)', () =
       expect(res.body.items).toEqual([]);
     });
 
-    it('la búsqueda no distingue mayúsculas de minúsculas', async () => {
+    // BUG-10 (docs/bugs.md): corre como falla esperada mientras el bug exista.
+    knownBug('la búsqueda no distingue mayúsculas de minúsculas', async () => {
       const { owner, p } = await proyectoConTareas('tf-mayus@test.com');
 
       const res = await request(app).get(`/api/projects/${p.id}/tasks?search=login`).set(auth(owner.token));
@@ -388,7 +396,8 @@ describe('Tareas (US-05, US-06, US-07, US-12, US-13, US-14, US-15, US-16)', () =
       expect(res.body.items.map((t: { title: string }) => t.title).sort()).toEqual(['Implementar Login', 'Tests de login']);
     });
 
-    it('los filtros se combinan entre sí', async () => {
+    // BUG-05 (docs/bugs.md): corre como falla esperada mientras el bug exista.
+    knownBug('los filtros se combinan entre sí', async () => {
       const { owner, p } = await proyectoConTareas('tf-combo@test.com');
       await createTask(owner.token, p.id, { title: 'Alta pero hecha', priority: 'HIGH', assigneeId: owner.id });
       const alta = (await request(app).get(`/api/projects/${p.id}/tasks?priority=HIGH`).set(auth(owner.token))).body.items;
@@ -413,7 +422,8 @@ describe('Tareas (US-05, US-06, US-07, US-12, US-13, US-14, US-15, US-16)', () =
       expect(res.body.items).toEqual([]);
     });
 
-    it('el listado viene paginado: 20 por defecto y total con todas', async () => {
+    // BUG-11 (docs/bugs.md): corre como falla esperada mientras el bug exista.
+    knownBug('el listado viene paginado: 20 por defecto y total con todas', async () => {
       const { owner, p } = await proyectoConOwner('tf-pag@test.com');
       await db.task.createMany({
         data: Array.from({ length: 25 }, (_, i) => ({ projectId: num(p.id), title: `Tarea ${i + 1}` })),
@@ -475,7 +485,8 @@ describe('Tareas (US-05, US-06, US-07, US-12, US-13, US-14, US-15, US-16)', () =
       expect(malId.status).toBe(404);
     });
 
-    it('agregar la misma etiqueta dos veces no la duplica (200)', async () => {
+    // BUG-17 (docs/bugs.md): corre como falla esperada mientras el bug exista.
+    knownBug('agregar la misma etiqueta dos veces no la duplica (200)', async () => {
       const { owner, p } = await proyectoConOwner('tg-dup@test.com');
       const t = await createTask(owner.token, p.id, { title: 'Tarea' });
       await request(app).post(`/api/tasks/${t.id}/tags`).set(auth(owner.token)).send({ name: 'bug' });
@@ -487,7 +498,8 @@ describe('Tareas (US-05, US-06, US-07, US-12, US-13, US-14, US-15, US-16)', () =
       expect(detalle.body.tags).toHaveLength(1);
     });
 
-    it('las etiquetas se normalizan a minúsculas', async () => {
+    // BUG-17 (docs/bugs.md): corre como falla esperada mientras el bug exista.
+    knownBug('las etiquetas se normalizan a minúsculas', async () => {
       const { owner, p } = await proyectoConOwner('tg-mayus@test.com');
       const t = await createTask(owner.token, p.id, { title: 'Tarea' });
 

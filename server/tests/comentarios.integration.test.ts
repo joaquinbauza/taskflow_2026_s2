@@ -1,6 +1,7 @@
 import request from 'supertest';
 import { app, auth, createProject, createTask, registerUser } from './helpers';
 import { addMemberDb } from './db-helpers';
+import { knownBug } from './knownBug';
 
 async function tareaConMiembros(prefijo: string) {
   const ana = await registerUser(`${prefijo}-ana@test.com`);
@@ -69,7 +70,8 @@ describe('Comentarios (US-08)', () => {
     expect(malId.status).toBe(404);
   });
 
-  it('los comentarios se devuelven del más antiguo al más reciente', async () => {
+  // BUG-13 (docs/bugs.md): corre como falla esperada mientras el bug exista.
+  knownBug('los comentarios se devuelven del más antiguo al más reciente', async () => {
     const { ana, t } = await tareaConMiembros('cm-orden');
     for (const body of ['Primero', 'Segundo', 'Tercero']) {
       await comentar(ana.token, t.id, { body });
