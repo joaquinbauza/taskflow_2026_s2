@@ -90,8 +90,6 @@ Calculados con la fórmula oficial de FIRST (especificación CVSS v3.1, §7.1 y 
 
 > **Nota sobre las dos escalas de severidad.** La severidad de cada hallazgo en este reporte sigue la escala **CVSS 3.1** (None / Low / Medium / High / Critical según el puntaje). En cambio, [`bugs.md`](bugs.md) y los issues de GitHub usan el **criterio del equipo**: "**Crítica** = seguridad o funcionalidad principal inutilizable". Por eso el mismo hallazgo puede figurar distinto en cada documento: **SEC-01 / BUG-09** es **HIGH** por CVSS (8.1) y **Crítica** en `bugs.md` (lo mismo pasa con BUG-15: HIGH 7.4 por CVSS, Crítica en `bugs.md`).
 
-Con 9.1, SEC-02 pasa de HIGH a CRITICAL. En [`bugs.md`](bugs.md), BUG-21 (el mismo hallazgo) todavía figura con severidad **Alta**: queda pendiente alinearlo (lo corrige otro integrante en su rama).
-
 ## Escaneo OWASP ZAP (baseline)
 
 **Herramienta:** OWASP ZAP **2.17.0**, imagen Docker `ghcr.io/zaproxy/zaproxy:stable`, script `zap-baseline.py` (spider tradicional de 1 minuto + reglas **pasivas**; no envía ataques y no se autentica). Fecha: 17/11/2026, Docker 28.3.3 (Docker Desktop) sobre Windows 11.
