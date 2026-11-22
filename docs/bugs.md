@@ -1,10 +1,10 @@
 # Reporte de bugs — TaskFlow
 
-**Rama:** `main` · **Fecha:** 26/10/2026 (estado actualizado el 16/11/2026 en la rama `entrega-final`: BUG-21 y BUG-22 nuevos; issues en [`docs/issues/`](issues/), cargados en GitHub como [#2 a #19](https://github.com/joaquinbauza/taskflow_2026_s2/issues?q=is%3Aissue)) · **Referencia:** `taskflow_especificacion_requerimientos.docx` (v1.0), que es la fuente de verdad.
+**Rama:** `main` · **Fecha:** 26/10/2026 (estado actualizado el 16/11/2026: BUG-21 y BUG-22 nuevos; reproducibilidad medida y BUG-21 a Crítica el 22/11/2026; issues en [`docs/issues/`](issues/), cargados en GitHub como [#2 a #19](https://github.com/joaquinbauza/taskflow_2026_s2/issues?q=is%3Aissue)) · **Referencia:** `taskflow_especificacion_requerimientos.docx` (v1.0), que es la fuente de verdad.
 
 **Entorno:** Node ≥ 20, API Express + Prisma + SQLite, frontend React + Vite. Los pasos asumen la API en `http://localhost:3000/api` y el header `Authorization: Bearer <token>` en todo lo que no sea `/auth/*`.
 
-Cada bug tiene al menos un test automatizado que lo reproduce (columna **Test**). Esos tests describen el comportamiento correcto y corren como *falla esperada* (`knownBug` en Jest, `test.fail` en Playwright): la suite queda en verde mientras el bug exista y se pone en rojo cuando se arregla. Para ver las fallas reales:
+Cada bug tiene al menos un test que lo reproduce (campo **Test**), su **Reproducibilidad** medida corriendo ese test 5 veces y un link a la **Evidencia** (salida del test, captura o respuesta HTTP, y el issue de GitHub), con el mismo formato que [`docs/issues/`](issues/). Esos tests describen el comportamiento correcto y corren como *falla esperada* (`knownBug` en Jest, `test.fail` en Playwright): la suite queda en verde mientras el bug exista y se pone en rojo cuando se arregla. Para ver las fallas reales:
 
 ```bash
 SHOW_BUGS=1 npm test              # macOS / Linux
@@ -20,6 +20,7 @@ $env:SHOW_BUGS=1; npm test        # Windows PowerShell
 | [BUG-09](#bug-09) | Inyección SQL en la búsqueda de tareas | Crítica | US-07 | Integración | Abierto | [#8](https://github.com/joaquinbauza/taskflow_2026_s2/issues/8) |
 | [BUG-14](#bug-14) | `forgot-password` revela si la cuenta existe y devuelve el token | Crítica | US-17 | Integración | Abierto | [#13](https://github.com/joaquinbauza/taskflow_2026_s2/issues/13) |
 | [BUG-15](#bug-15) | `reset-password` acepta tokens usados, invalidados o vencidos | Crítica | US-17 | Integración | Abierto | [#14](https://github.com/joaquinbauza/taskflow_2026_s2/issues/14) |
+| [BUG-21](#bug-21) | Los JWT se firman con un secreto por defecto público y se pueden forjar | Crítica | US-02, Seguridad | Manual (curl) | Abierto | [#18](https://github.com/joaquinbauza/taskflow_2026_s2/issues/18) |
 | [BUG-08](#bug-08) | Un ex-miembro conserva sus tareas y puede seguir operándolas | Alta | US-11 | Integración | ⚠️ Parcial | [#7](https://github.com/joaquinbauza/taskflow_2026_s2/issues/7) |
 | [BUG-01](#bug-01) | Se permite pasar una tarea de TODO a DONE | Alta | US-06 | Unitario | Abierto | [#4](https://github.com/joaquinbauza/taskflow_2026_s2/issues/4) |
 | [BUG-03](#bug-03) | La fecha de vencimiento vuelve un día antes en UTC-3 | Alta | US-16 | Unitario | Abierto | [#2](https://github.com/joaquinbauza/taskflow_2026_s2/issues/2) |
@@ -28,7 +29,6 @@ $env:SHOW_BUGS=1; npm test        # Windows PowerShell
 | [BUG-12](#bug-12) | Al crear una tarea se puede forzar el estado (asignación masiva) | Alta | US-05 | Integración | Abierto | [#11](https://github.com/joaquinbauza/taskflow_2026_s2/issues/11) |
 | [BUG-16](#bug-16) | El contador de intentos fallidos no se reinicia tras un login exitoso | Alta | US-02 | Integración | Abierto | [#15](https://github.com/joaquinbauza/taskflow_2026_s2/issues/15) |
 | [BUG-20](#bug-20) | Borrar un proyecto deja comentarios e historial huérfanos | Alta | US-10 | Integración | Abierto | [#17](https://github.com/joaquinbauza/taskflow_2026_s2/issues/17) |
-| [BUG-21](#bug-21) | Los JWT se firman con un secreto por defecto público y se pueden forjar | Alta | US-02, Seguridad | Manual (curl) | Abierto | [#18](https://github.com/joaquinbauza/taskflow_2026_s2/issues/18) |
 | [BUG-22](#bug-22) | El listado de tareas tarda 25,6 s (p95) con 5.000 tareas y 20 usuarios | Alta | US-07, Rendimiento 1-3 | Performance (curl / k6) | Abierto | [#19](https://github.com/joaquinbauza/taskflow_2026_s2/issues/19) |
 | [BUG-02](#bug-02) | Se aceptan contraseñas de 7 caracteres | Media | US-01, US-17 | Unitario | ✅ Resuelto | — |
 | [BUG-04](#bug-04) | Se aceptan fechas de vencimiento inexistentes (2026-02-30) | Media | US-16 | Unitario | Abierto | [#5](https://github.com/joaquinbauza/taskflow_2026_s2/issues/5) |
@@ -39,6 +39,8 @@ $env:SHOW_BUGS=1; npm test        # Windows PowerShell
 | [BUG-19](#bug-19) | Un miembro ve los proyectos archivados | Media | US-04 | Integración | Abierto | [#16](https://github.com/joaquinbauza/taskflow_2026_s2/issues/16) |
 
 Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutilizable; **Alta** = incumple una regla de negocio o pierde/corrompe datos; **Media** = incumple un criterio de aceptación sin pérdida de datos.
+
+**Conteo por severidad (22 bugs):** Crítica **6** (4 abiertos: BUG-09, 14, 15 y 21 · 2 resueltos: BUG-06 y 07) · Alta **9** (9 abiertos, BUG-08 parcial) · Media **7** (5 abiertos · 2 resueltos: BUG-02 y 18). **Abiertos: 18** (4 críticos · 9 altos · 5 medios), uno por issue de GitHub (#2 a #19). BUG-21 pasó de Alta a Crítica el 22/11/2026: es un problema de seguridad (criterio de arriba) con CVSS 3.1 9.1 ([`clase12-m2-reporte.md`](clase12-m2-reporte.md#puntajes-cvss-31)).
 
 ---
 
@@ -51,8 +53,9 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Pasos:** como A, `POST /projects/proj-1/members` con `{ "email": "bob@test.com" }` (o desde la pantalla *Miembros*).
 - **Esperado:** HTTP 201 con `{ projectId, userId, email, role: "MEMBER" }`; Bob ve el proyecto en `GET /projects`.
 - **Obtenido:** HTTP 400 `VALIDATION_ERROR` "email must be a valid address" para cualquier email válido. En la UI aparece el error y el miembro no se agrega.
-- **Evidencia:** [captura del E2E](evidencias/BUG-06-miembros.png).
-- **Test:** `server/tests/contract/api.contract.test.ts › [BUG-06] POST /projects/:projectId/members`, `e2e/tests/members.spec.ts`. También rompe el test existente `tasks.test.ts › permite al owner cambiar estado y rechaza a un miembro no asignado`.
+- **Test:** `server/tests/contract/api.contract.test.ts › [BUG-06] POST /projects/:projectId/members`, `e2e/tests/e2e/members.spec.ts`. También rompe el test existente `tasks.test.ts › permite al owner cambiar estado y rechaza a un miembro no asignado`.
+- **Reproducibilidad:** 0 de 5: el test pasa en las 5 corridas de Jest (`SHOW_BUGS=1`, Windows 11, Node 22.23.5, TZ America/Montevideo, 22/11/2026), el bug está resuelto · [salida de las 5 corridas](evidencias/reproducibilidad-jest.txt)
+- **Evidencia:** `server/tests/contract/api.contract.test.ts › Contrato frontend → API › Proyectos › [BUG-06] POST /projects/:projectId/members` y E2E `e2e/tests/e2e/members.spec.ts › el owner agrega un miembro por email y aparece en la lista`; [captura del E2E cuando fallaba](evidencias/BUG-06-miembros.png)
 - **Causa probable:** `projects.controller.ts:145` — `if (assertEmail(...)) throw badRequest(...)`. `assertEmail` devuelve el email normalizado (truthy) cuando es válido, así que la condición es siempre verdadera.
 - **Estado:** ✅ Resuelto. Lo arreglaron las ramas `bugs-endpoints` y `fix/project-members-validation`; los tests ahora corren como tests normales.
 
@@ -64,6 +67,8 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Esperado:** HTTP 403 en ambos casos; la tarea conserva el título y sigue existiendo.
 - **Obtenido:** PATCH → 200 y el título cambia; DELETE → 204 y la tarea se borra.
 - **Test:** `server/tests/bugs.test.ts › BUG-07` (2 tests).
+- **Reproducibilidad:** 0 de 5: el test pasa en las 5 corridas de Jest (`SHOW_BUGS=1`, Windows 11, Node 22.23.5, TZ America/Montevideo, 22/11/2026), el bug está resuelto · [salida de las 5 corridas](evidencias/reproducibilidad-jest.txt)
+- **Evidencia:** `server/tests/bugs.test.ts › BUG-07 › un usuario ajeno no puede editar la tarea (403) y el título no cambia` y `› un usuario ajeno no puede eliminar la tarea (403) y la tarea sigue existiendo`; respuestas 403 actuales en [`pruebas-api.md` §3](evidencias/seguridad/pruebas-api.md)
 - **Causa probable:** `tasks.routes.ts:14-15` — `PATCH /:taskId` y `DELETE /:taskId` no usan el middleware `requireTaskProjectMember`, a diferencia de las demás rutas del router.
 - **Estado:** ✅ Resuelto en la rama `bugs-endpoints`: las rutas PATCH y DELETE usan `requireTaskProjectMember`. Los tests ahora corren como tests normales.
 
@@ -75,6 +80,8 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Esperado:** el texto se trata como dato: HTTP 200 sin resultados.
 - **Obtenido:** HTTP 200 con **todas las tareas de todos los proyectos**, incluida la de A.
 - **Test:** `server/tests/bugs.test.ts › BUG-09`.
+- **Reproducibilidad:** 5 de 5 corridas de Jest (`SHOW_BUGS=1`, Windows 11, Node 22.23.5, TZ America/Montevideo, 22/11/2026) · [salida de las 5 corridas](evidencias/reproducibilidad-jest.txt)
+- **Evidencia:** `server/tests/bugs.test.ts › BUG-09 › el texto de búsqueda se trata como dato y no expone tareas de otros proyectos`; respuesta HTTP con tareas de otro proyecto en [`pruebas-api.md` §4](evidencias/seguridad/pruebas-api.md); issue [#8](https://github.com/joaquinbauza/taskflow_2026_s2/issues/8)
 - **Causa probable:** `tasks.repository.ts:33-50` — la búsqueda arma el SQL concatenando `search` y usa `$queryRawUnsafe`. Debe usarse una consulta parametrizada (`$queryRaw` con template o `contains` de Prisma).
 
 ### BUG-14
@@ -84,6 +91,8 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Esperado:** HTTP 200 y el mismo cuerpo genérico en ambos casos.
 - **Obtenido:** email registrado → 200 con `{ message, token }`; email inexistente → 404 "No account found for that email". Además, como el token viaja en la respuesta, cualquiera que conozca un email puede resetear esa contraseña (combinado con BUG-15, sin límite).
 - **Test:** `server/tests/bugs.test.ts › BUG-14`.
+- **Reproducibilidad:** 5 de 5 corridas de Jest (`SHOW_BUGS=1`, Windows 11, Node 22.23.5, TZ America/Montevideo, 22/11/2026) · [salida de las 5 corridas](evidencias/reproducibilidad-jest.txt)
+- **Evidencia:** `server/tests/bugs.test.ts › BUG-14 › responde 200 con el mismo cuerpo exista o no la cuenta`; comportamiento fijado en `server/tests/characterization/__snapshots__/email-validation.characterization.test.ts.snap`; issue [#13](https://github.com/joaquinbauza/taskflow_2026_s2/issues/13)
 - **Causa probable:** `auth.service.ts:95` lanza `notFound` y el `return` final incluye `token`.
 
 ### BUG-15
@@ -96,7 +105,21 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Esperado:** HTTP 400 en los tres casos.
 - **Obtenido:** HTTP 200 en los tres casos; la contraseña se cambia.
 - **Test:** `server/tests/bugs.test.ts › BUG-15` (3 tests).
+- **Reproducibilidad:** 5 de 5 corridas de Jest (`SHOW_BUGS=1`, Windows 11, Node 22.23.5, TZ America/Montevideo, 22/11/2026): fallan los 3 tests en cada corrida · [salida de las 5 corridas](evidencias/reproducibilidad-jest.txt)
+- **Evidencia:** `server/tests/bugs.test.ts › BUG-15 › un token ya utilizado no se puede reutilizar (400)`, `› un token generado hace 61 minutos no sirve (400)` y `› al pedir un token nuevo, el anterior queda invalidado (400)`; issue [#14](https://github.com/joaquinbauza/taskflow_2026_s2/issues/14)
 - **Causa probable:** `auth.service.ts:119` — solo se busca el token; no se valida `usedAt` ni `expiresAt` y no se marca como usado al consumirlo.
+
+### BUG-21
+**Los JWT se firman con un secreto por defecto público y se pueden forjar** · Severidad: Crítica (seguridad; CVSS 3.1 9.1) · US-02, Seguridad · SEC-02
+
+- **Precondiciones:** `server/.env` copiado de `.env.example` (no define `JWT_SECRET`), como indica el README.
+- **Pasos:** firmar `{ userId: 1, email: 'ana@test.com' }` con `'taskflow-dev-secret'` y llamar a `GET /api/projects` con ese token.
+- **Esperado:** HTTP 401.
+- **Obtenido:** HTTP 200 con los proyectos de ana: suplantación de cualquier usuario.
+- **Test:** manual, `docs/evidencias/seguridad/pruebas-api.md` (sección 5). Issue: [ISSUE-17](issues/ISSUE-17-secreto-jwt-por-defecto.md) (GitHub [#18](https://github.com/joaquinbauza/taskflow_2026_s2/issues/18)).
+- **Reproducibilidad:** 5 de 5 (token nuevo forjado en cada corrida, `GET /api/projects` → 200; Windows 11, API `npm run dev:server` con `server/.env` sin `JWT_SECRET`, 22/11/2026) · [salida](evidencias/seguridad/BUG-21-reproducibilidad.txt)
+- **Evidencia:** manual: [`BUG-21-reproducibilidad.txt`](evidencias/seguridad/BUG-21-reproducibilidad.txt) y [`pruebas-api.md` §5](evidencias/seguridad/pruebas-api.md) (script [`pruebas-api.sh`](evidencias/seguridad/pruebas-api.sh)); issue [#18](https://github.com/joaquinbauza/taskflow_2026_s2/issues/18)
+- **Causa probable:** `middleware/auth.ts:5` — `process.env.JWT_SECRET ?? 'taskflow-dev-secret'`.
 
 ## Altos
 
@@ -108,6 +131,8 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Esperado:** `task-1` queda con `assigneeId: null`; el PATCH de Bob devuelve 403.
 - **Obtenido:** `task-1` sigue asignada a Bob; el PATCH devuelve 200 y cambia el estado.
 - **Test:** `server/tests/bugs.test.ts › BUG-08` (2 tests).
+- **Reproducibilidad:** 5 de 5 corridas de Jest (`SHOW_BUGS=1`, Windows 11, Node 22.23.5, TZ America/Montevideo, 22/11/2026) del test `la tarea del miembro quitado queda sin asignado`; el otro test de BUG-08 (403 al ex-miembro) pasa: es la parte resuelta · [salida de las 5 corridas](evidencias/reproducibilidad-jest.txt)
+- **Evidencia:** `server/tests/bugs.test.ts › BUG-08 › la tarea del miembro quitado queda sin asignado`; issue [#7](https://github.com/joaquinbauza/taskflow_2026_s2/issues/7)
 - **Causa probable:** `projects.controller.ts:188` borra la membresía sin desasignar tareas; `tasks.service.ts:58` saltea la verificación cuando el usuario es el asignado, y la ruta PATCH no verifica membresía (ver BUG-07).
 - **Estado:** ⚠️ Parcial. Con el arreglo de BUG-07 el ex-miembro ya recibe 403 (ese test corre como test normal), pero la tarea sigue asignada a él: el test `la tarea del miembro quitado queda sin asignado` sigue como falla esperada.
 
@@ -118,6 +143,8 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Esperado:** HTTP 422 `INVALID_TRANSITION`.
 - **Obtenido:** HTTP 200; la tarea queda en DONE.
 - **Test:** `server/tests/unit/transitions.test.ts › [BUG-01]`.
+- **Reproducibilidad:** 5 de 5 corridas de Jest (`SHOW_BUGS=1`, Windows 11, Node 22.23.5, TZ America/Montevideo, 22/11/2026) · [salida de las 5 corridas](evidencias/reproducibilidad-jest.txt)
+- **Evidencia:** `server/tests/unit/transitions.test.ts › assertTransition (US-06) › [BUG-01] rechaza TODO → DONE con INVALID_TRANSITION (422)`; matriz de transiciones fijada en `server/tests/characterization/__snapshots__/tasks-service.characterization.test.ts.snap`; issue [#4](https://github.com/joaquinbauza/taskflow_2026_s2/issues/4)
 - **Causa probable:** `transitions.ts:8-11` — la lista `FORBIDDEN_TRANSITIONS` no incluye `['TODO', 'DONE']`. Conviene invertir el enfoque a una lista de transiciones *permitidas*.
 
 ### BUG-03
@@ -128,6 +155,8 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Esperado:** `dueDate: "2026-09-15"`.
 - **Obtenido:** `dueDate: "2026-09-14"`. En UTC o al este de UTC funciona, por eso puede pasar inadvertido en CI.
 - **Test:** `server/tests/unit/ids.test.ts › [BUG-03]` (corre la conversión en un proceso con `TZ=America/Montevideo`), `server/tests/tareas.integration.test.ts › la fecha devuelta es la misma…` y E2E `e2e/tests/e2e/us-16-vencimiento.spec.ts` (3 casos con `test.fail`: detalle, tablero y fecha pasada). Issue: [ISSUE-01](issues/ISSUE-01-fecha-vencimiento-un-dia-antes.md) (GitHub [#2](https://github.com/joaquinbauza/taskflow_2026_s2/issues/2)).
+- **Reproducibilidad:** 5 de 5 corridas de Jest (`SHOW_BUGS=1`, Windows 11, Node 22.23.5, TZ America/Montevideo, 22/11/2026) del test unitario, que fuerza `TZ=America/Montevideo` en un proceso hijo; los 3 E2E con `test.fail` también fallan en 5 de 5 ([salida](evidencias/e2e-reproducibilidad.txt)) · [salida de las 5 corridas](evidencias/reproducibilidad-jest.txt)
+- **Evidencia:** `server/tests/unit/ids.test.ts › parseDueDate / formatDueDate (US-16) › [BUG-03] devuelve la misma fecha que se cargó con el servidor en UTC-3`, `server/tests/tareas.integration.test.ts › … › la fecha devuelta es la misma que se cargó, sin importar la zona horaria` y E2E `e2e/tests/e2e/us-16-vencimiento.spec.ts` (3 `test.fail`); issue [#2](https://github.com/joaquinbauza/taskflow_2026_s2/issues/2)
 - **Causa probable:** `ids.ts:38` crea la fecha a medianoche UTC (`new Date('2026-09-15')`) y `ids.ts:44-46` la formatea con `getFullYear/getMonth/getDate` en hora local. Usar los métodos `getUTC*`.
 
 ### BUG-05
@@ -138,6 +167,8 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Esperado:** las 3 tareas TODO/HIGH.
 - **Obtenido:** las 4 HIGH, incluida la DONE: solo se aplica el último filtro.
 - **Test:** `server/tests/unit/task-filters.test.ts › [BUG-05]` (2), `server/tests/bugs.test.ts › BUG-05`.
+- **Reproducibilidad:** 5 de 5 corridas de Jest (`SHOW_BUGS=1`, Windows 11, Node 22.23.5, TZ America/Montevideo, 22/11/2026) · [salida de las 5 corridas](evidencias/reproducibilidad-jest.txt)
+- **Evidencia:** `server/tests/bugs.test.ts › BUG-05 › status=TODO&priority=HIGH devuelve solo las TODO de prioridad HIGH`; issue [#6](https://github.com/joaquinbauza/taskflow_2026_s2/issues/6)
 - **Causa probable:** `tasks.repository.ts:16-22` — cada `if` reemplaza el objeto `where` en lugar de agregarle la condición.
 
 ### BUG-11
@@ -148,6 +179,8 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Esperado:** 20 tareas con `total: 25`; luego las tareas 21 a 25.
 - **Obtenido:** siempre las 25 tareas; `limit` y `offset` solo se repiten en la respuesta.
 - **Test:** `server/tests/bugs.test.ts › BUG-11` (2 tests).
+- **Reproducibilidad:** 5 de 5 corridas de Jest (`SHOW_BUGS=1`, Windows 11, Node 22.23.5, TZ America/Montevideo, 22/11/2026): fallan los 2 tests en cada corrida · [salida de las 5 corridas](evidencias/reproducibilidad-jest.txt)
+- **Evidencia:** `server/tests/bugs.test.ts › BUG-11 › sin parámetros devuelve 20 tareas y total 25` y `› limit=5&offset=20 devuelve las tareas 21 a 25`; efecto medido en [`k6-seed-grande.txt`](evidencias/k6-seed-grande.txt) (1,86 MB por respuesta); issue [#10](https://github.com/joaquinbauza/taskflow_2026_s2/issues/10)
 - **Causa probable:** `tasks.controller.ts:30-46` calcula `limit`/`offset` pero no los pasa a `findTasks` (`take`/`skip`).
 
 ### BUG-12
@@ -157,6 +190,8 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Esperado:** HTTP 201 con `status: "TODO"`.
 - **Obtenido:** HTTP 201 con `status: "DONE"`. Se saltea las reglas de transición de US-06 y el historial registra `null → DONE`.
 - **Test:** `server/tests/bugs.test.ts › BUG-12`.
+- **Reproducibilidad:** 5 de 5 corridas de Jest (`SHOW_BUGS=1`, Windows 11, Node 22.23.5, TZ America/Montevideo, 22/11/2026) · [salida de las 5 corridas](evidencias/reproducibilidad-jest.txt)
+- **Evidencia:** `server/tests/bugs.test.ts › BUG-12 › el estado inicial es TODO aunque la solicitud mande status DONE`; issue [#11](https://github.com/joaquinbauza/taskflow_2026_s2/issues/11)
 - **Causa probable:** `tasks.service.ts:85` — `...(body as object)` copia el cuerpo completo de la solicitud al `create`; cualquier columna (`status`, `id`, `createdAt`...) se puede escribir desde afuera.
 
 ### BUG-16
@@ -166,6 +201,8 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Esperado:** el último login responde 200 (la cuenta no se bloquea).
 - **Obtenido:** 401 "Account temporarily locked": los fallos se acumularon en 6.
 - **Test:** `server/tests/bugs.test.ts › BUG-16`.
+- **Reproducibilidad:** 5 de 5 corridas de Jest (`SHOW_BUGS=1`, Windows 11, Node 22.23.5, TZ America/Montevideo, 22/11/2026) · [salida de las 5 corridas](evidencias/reproducibilidad-jest.txt)
+- **Evidencia:** `server/tests/bugs.test.ts › BUG-16 › 3 fallos + login ok + 3 fallos no bloquean la cuenta`; contador fijado en `server/tests/characterization/__snapshots__/auth-constants.characterization.test.ts.snap`; issue [#15](https://github.com/joaquinbauza/taskflow_2026_s2/issues/15)
 - **Causa probable:** `auth.service.ts:81-83` — tras el login exitoso solo se limpia `lockedUntil`, no `failedAttempts`.
 
 ### BUG-20
@@ -176,17 +213,9 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Esperado:** 0 comentarios y 0 entradas de historial.
 - **Obtenido:** quedan 2 comentarios y 2 entradas de historial.
 - **Test:** `server/tests/bugs.test.ts › BUG-20`.
+- **Reproducibilidad:** 5 de 5 corridas de Jest (`SHOW_BUGS=1`, Windows 11, Node 22.23.5, TZ America/Montevideo, 22/11/2026) · [salida de las 5 corridas](evidencias/reproducibilidad-jest.txt)
+- **Evidencia:** `server/tests/bugs.test.ts › BUG-20 › no queda ningún comentario ni historial de las tareas del proyecto`; issue [#17](https://github.com/joaquinbauza/taskflow_2026_s2/issues/17)
 - **Causa probable:** en `schema.prisma`, `Comment` y `TaskHistory` no tienen relación con `Task`, así que el `onDelete: Cascade` del proyecto borra las tareas pero no lo que cuelga de ellas. `projects.controller.ts:127` hace un `delete` directo sin limpiar.
-
-### BUG-21
-**Los JWT se firman con un secreto por defecto público y se pueden forjar** · Severidad: Alta · US-02, Seguridad · SEC-02
-
-- **Precondiciones:** `server/.env` copiado de `.env.example` (no define `JWT_SECRET`), como indica el README.
-- **Pasos:** firmar `{ userId: 1, email: 'ana@test.com' }` con `'taskflow-dev-secret'` y llamar a `GET /api/projects` con ese token.
-- **Esperado:** HTTP 401.
-- **Obtenido:** HTTP 200 con los proyectos de ana: suplantación de cualquier usuario.
-- **Test:** manual, `docs/evidencias/seguridad/pruebas-api.md` (sección 5). Issue: [ISSUE-17](issues/ISSUE-17-secreto-jwt-por-defecto.md) (GitHub [#18](https://github.com/joaquinbauza/taskflow_2026_s2/issues/18)).
-- **Causa probable:** `middleware/auth.ts:5` — `process.env.JWT_SECRET ?? 'taskflow-dev-secret'`.
 
 ### BUG-22
 **El listado de tareas tarda 25,6 s (p95) con 5.000 tareas y 20 usuarios** · Severidad: Alta · US-07 (criterio 7), Rendimiento 1, 2 y 3
@@ -196,6 +225,8 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Esperado:** p95 ≤ 500 ms, respuesta paginada.
 - **Obtenido:** p95 25.590 ms con 20 VUs (0 % de errores, 0,81 iteraciones/s), 1,86 MB por respuesta; con 1 usuario (curl) p95 5.633 ms. Con la seed chica, p95 17,68 ms.
 - **Test:** `performance/scenarios/api-load.k6.js` (threshold `p(95)<500`); salidas en `docs/evidencias/k6-seed-chica.txt` y `k6-seed-grande.txt`. Issue: [ISSUE-18](issues/ISSUE-18-listado-tareas-lento-con-volumen.md) (GitHub [#19](https://github.com/joaquinbauza/taskflow_2026_s2/issues/19)). Detalle en [`performance.md`](performance.md).
+- **Reproducibilidad:** 5 de 5 corridas de k6 con 20 VUs y 1 min fallan el threshold `p(95)<500` (p95 entre 30,22 s y 30,82 s, 0 % de errores; Windows 11, k6 v2.4.0, seed grande, 22/11/2026) · [salida](evidencias/k6-reproducibilidad.txt)
+- **Evidencia:** `performance/scenarios/api-load.k6.js` (threshold `p(95)<500`); [`k6-seed-grande.txt`](evidencias/k6-seed-grande.txt), [`k6-seed-chica.txt`](evidencias/k6-seed-chica.txt) y [`k6-reproducibilidad.txt`](evidencias/k6-reproducibilidad.txt); issue [#19](https://github.com/joaquinbauza/taskflow_2026_s2/issues/19)
 - **Causa probable:** BUG-11 (no pagina) + N+1 en `tasks.controller.ts:35-43` (2 consultas por tarea → ~10.001 por request).
 
 ## Medios
@@ -207,6 +238,8 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Esperado:** HTTP 400 (mínimo 8 caracteres). El propio mensaje de error dice "at least 8 characters".
 - **Obtenido:** HTTP 201.
 - **Test:** `server/tests/unit/validation.test.ts › [BUG-02]`.
+- **Reproducibilidad:** 0 de 5: el test pasa en las 5 corridas de Jest (`SHOW_BUGS=1`, Windows 11, Node 22.23.5, TZ America/Montevideo, 22/11/2026), el bug está resuelto · [salida de las 5 corridas](evidencias/reproducibilidad-jest.txt)
+- **Evidencia:** `server/tests/unit/validation.test.ts › assertPassword (US-01 / US-17) › [BUG-02] rechaza una contraseña de 7 caracteres aunque tenga número y mayúscula`
 - **Causa probable:** `validation.ts:20` — `password.length >= 7`.
 - **Estado:** ✅ Resuelto en la rama `bugs-endpoints` (`length >= 8`). El test corre como test normal.
 
@@ -217,6 +250,8 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Esperado:** HTTP 400.
 - **Obtenido:** HTTP 200 y se guarda el 2 de marzo (el 1 de marzo en UTC-3, ver BUG-03).
 - **Test:** `server/tests/unit/ids.test.ts › [BUG-04]`.
+- **Reproducibilidad:** 5 de 5 corridas de Jest (`SHOW_BUGS=1`, Windows 11, Node 22.23.5, TZ America/Montevideo, 22/11/2026) · [salida de las 5 corridas](evidencias/reproducibilidad-jest.txt)
+- **Evidencia:** `server/tests/unit/ids.test.ts › parseDueDate / formatDueDate (US-16) › [BUG-04] rechaza una fecha de calendario inexistente (2026-02-30)`; issue [#5](https://github.com/joaquinbauza/taskflow_2026_s2/issues/5)
 - **Causa probable:** `ids.ts:38` — `new Date('2026-02-30')` no es `Invalid Date` en V8 sino que se desborda al mes siguiente. Hay que comparar año/mes/día de la fecha creada con los del string.
 
 ### BUG-10
@@ -226,6 +261,8 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Esperado:** se devuelve la tarea.
 - **Obtenido:** lista vacía.
 - **Test:** `server/tests/bugs.test.ts › BUG-10`.
+- **Reproducibilidad:** 5 de 5 corridas de Jest (`SHOW_BUGS=1`, Windows 11, Node 22.23.5, TZ America/Montevideo, 22/11/2026) · [salida de las 5 corridas](evidencias/reproducibilidad-jest.txt)
+- **Evidencia:** `server/tests/bugs.test.ts › BUG-10 › search=login encuentra "Implementar Login"`; issue [#9](https://github.com/joaquinbauza/taskflow_2026_s2/issues/9)
 - **Causa probable:** `tasks.repository.ts:49` — `instr()` de SQLite es sensible a mayúsculas.
 
 ### BUG-13
@@ -235,6 +272,8 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Esperado:** `primero, segundo, tercero`.
 - **Obtenido:** `tercero, segundo, primero`.
 - **Test:** `server/tests/bugs.test.ts › BUG-13`.
+- **Reproducibilidad:** 5 de 5 corridas de Jest (`SHOW_BUGS=1`, Windows 11, Node 22.23.5, TZ America/Montevideo, 22/11/2026) · [salida de las 5 corridas](evidencias/reproducibilidad-jest.txt)
+- **Evidencia:** `server/tests/bugs.test.ts › BUG-13 › se devuelven en orden cronológico ascendente`; orden fijado en `server/tests/characterization/__snapshots__/comments.characterization.test.ts.snap`; issue [#12](https://github.com/joaquinbauza/taskflow_2026_s2/issues/12)
 - **Causa probable:** `comments.repository.ts:6` — `orderBy: { createdAt: 'desc' }`.
 
 ### BUG-17
@@ -244,6 +283,8 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Esperado:** se guarda `backend`; el segundo `bug` responde 200 sin duplicar; `BUG` es la misma etiqueta que `bug`.
 - **Obtenido:** se guarda `Backend`; el segundo `bug` responde 201 y la tarea queda con dos `bug`; `BUG` se crea como etiqueta aparte.
 - **Test:** `server/tests/bugs.test.ts › BUG-17` (3 tests) y E2E `e2e/tests/e2e/us-15-etiquetas.spec.ts` (US-15 c1, c2 y c3 con `test.fail`). Issue: [ISSUE-02](issues/ISSUE-02-etiquetas-no-normalizadas.md) (GitHub [#3](https://github.com/joaquinbauza/taskflow_2026_s2/issues/3)).
+- **Reproducibilidad:** 5 de 5 corridas de Jest (`SHOW_BUGS=1`, Windows 11, Node 22.23.5, TZ America/Montevideo, 22/11/2026): fallan los 3 tests en cada corrida; los 3 E2E con `test.fail` también fallan en 5 de 5 ([salida](evidencias/e2e-reproducibilidad.txt)) · [salida de las 5 corridas](evidencias/reproducibilidad-jest.txt)
+- **Evidencia:** `server/tests/bugs.test.ts › BUG-17 › se guardan en minúsculas y sin espacios`, `› agregar la misma etiqueta dos veces responde 200 y no la duplica` y `› "BUG" y "bug" son la misma etiqueta`; E2E `e2e/tests/e2e/us-15-etiquetas.spec.ts` (3 `test.fail`); issue [#3](https://github.com/joaquinbauza/taskflow_2026_s2/issues/3)
 - **Causa probable:** `tasks.service.ts:187-190` — no se pasa el nombre a minúsculas y no se controla si la tarea ya tiene la etiqueta (`task_tags` tampoco tiene índice único).
 
 ### BUG-18
@@ -253,6 +294,8 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Esperado:** HTTP 400.
 - **Obtenido:** HTTP 201.
 - **Test:** test existente `server/tests/projects.test.ts › rechaza nombres cortos y acepta el minimo luego de quitar espacios` (falla).
+- **Reproducibilidad:** 0 de 5: el test pasa en las 5 corridas de Jest (`SHOW_BUGS=1`, Windows 11, Node 22.23.5, TZ America/Montevideo, 22/11/2026), el bug está resuelto · [salida de las 5 corridas](evidencias/reproducibilidad-jest.txt)
+- **Evidencia:** `server/tests/projects.test.ts › Proyectos › rechaza nombres cortos y acepta el minimo luego de quitar espacios`
 - **Causa probable:** `projects.controller.ts:32` — solo se valida el máximo (`> 100`), falta el mínimo de 3. El `update` sí lo valida.
 - **Estado:** ✅ Resuelto en la rama `fix/project-members-validation`: `create` valida el mínimo de 3 caracteres. El test existente pasa.
 
@@ -264,6 +307,8 @@ Criterio de severidad: **Crítica** = seguridad o funcionalidad principal inutil
 - **Esperado:** `proj-9` no aparece.
 - **Obtenido:** `proj-9` aparece.
 - **Test:** `server/tests/bugs.test.ts › BUG-19`.
+- **Reproducibilidad:** 5 de 5 corridas de Jest (`SHOW_BUGS=1`, Windows 11, Node 22.23.5, TZ America/Montevideo, 22/11/2026) · [salida de las 5 corridas](evidencias/reproducibilidad-jest.txt)
+- **Evidencia:** `server/tests/bugs.test.ts › BUG-19 › un proyecto archivado no aparece aunque el usuario sea miembro`; issue [#16](https://github.com/joaquinbauza/taskflow_2026_s2/issues/16)
 - **Causa probable:** `projects.controller.ts:60` — la rama del `OR` para miembros no filtra `archived: false`.
 
 ---
