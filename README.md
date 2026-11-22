@@ -295,7 +295,7 @@ taskflow/
 | [`performance.md`](docs/performance.md) | k6, seed grande, resultados e hipótesis |
 | [`clase12-ej1b-pipeline.md`](docs/clase12-ej1b-pipeline.md) | Clasificación del pipeline en rojo |
 | [`clase12-ej2-ia.md`](docs/clase12-ej2-ia.md) · [`ia/`](docs/ia/) | Tests de US-16 generados con IA, prompts y clasificación |
-| [`clase12-ej3-informe.md`](docs/clase12-ej3-informe.md) | Informe de estado de una página y recomendación de liberación |
+| [`clase12-ej3-informe.md`](docs/clase12-ej3-informe.md) · [`clase12-ej3-detalle.md`](docs/clase12-ej3-detalle.md) | Informe de estado de una página (métricas y recomendación) y su anexo con criterios de salida, defectos por severidad y riesgos |
 | [`evidencias/`](docs/evidencias/) | Salidas de Pact, axe, npm audit, curl de seguridad y performance |
 
 ## Especificación
