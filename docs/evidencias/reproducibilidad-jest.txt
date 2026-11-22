@@ -1,0 +1,58 @@
+# Reproducibilidad de los bugs con tests de Jest · 2026-11-22 16:31 -0300
+# Comando (desde server/), 5 veces: SHOW_BUGS=1 TZ=America/Montevideo npx jest --runInBand --json --outputFile=jest-N.json
+# Con SHOW_BUGS=1 los knownBug corren como it normal: el test FALLA mientras el bug exista.
+# Una corrida reproduce el bug si fallan TODOS los tests listados para ese bug. f = failed, p = passed.
+# Entorno: Windows 11 Pro, Node 22.23.5, Jest 29.7.0, SQLite temporal por archivo, commit 9ae2b1f (rama arreglos-docs)
+
+jest-1.json: failed=45 passed=238 pending=1
+jest-2.json: failed=45 passed=238 pending=1
+jest-3.json: failed=45 passed=238 pending=1
+jest-4.json: failed=45 passed=238 pending=1
+jest-5.json: failed=45 passed=238 pending=1
+
+BUG-01: 5 de 5  (1 test/s)
+    assertTransition (US-06) [BUG-01] rechaza TODO → DONE con INVALID_TRANSITION (422) -> f,f,f,f,f
+BUG-02: 0 de 5  (1 test/s)
+    assertPassword (US-01 / US-17) [BUG-02] rechaza una contraseña de 7 caracteres aunque tenga número y mayúscula -> p,p,p,p,p
+BUG-03: 5 de 5  (1 test/s)
+    parseDueDate / formatDueDate (US-16) [BUG-03] devuelve la misma fecha que se cargó con el servidor en UTC-3 -> f,f,f,f,f
+BUG-04: 5 de 5  (1 test/s)
+    parseDueDate / formatDueDate (US-16) [BUG-04] rechaza una fecha de calendario inexistente (2026-02-30) -> f,f,f,f,f
+BUG-05: 5 de 5  (1 test/s)
+    BUG-05 · Los filtros del listado no se combinan (US-07) status=TODO&priority=HIGH devuelve solo las TODO de prioridad HIGH -> f,f,f,f,f
+BUG-06: 0 de 5  (1 test/s)
+    Contrato frontend → API Proyectos [BUG-06] POST /projects/:projectId/members -> p,p,p,p,p
+BUG-07: 0 de 5  (2 test/s)
+    BUG-07 · PATCH y DELETE de tareas no verifican membresía (US-12, US-13) un usuario ajeno no puede editar la tarea (403) y el título no cambia -> p,p,p,p,p
+    BUG-07 · PATCH y DELETE de tareas no verifican membresía (US-12, US-13) un usuario ajeno no puede eliminar la tarea (403) y la tarea sigue existiendo -> p,p,p,p,p
+BUG-08: 5 de 5  (1 test/s)
+    BUG-08 · Quitar un miembro no libera sus tareas y el ex-miembro sigue operando (US-11) la tarea del miembro quitado queda sin asignado -> f,f,f,f,f
+BUG-09: 5 de 5  (1 test/s)
+    BUG-09 · Inyección SQL en la búsqueda de tareas (US-07, Seguridad 1) el texto de búsqueda se trata como dato y no expone tareas de otros proyectos -> f,f,f,f,f
+BUG-10: 5 de 5  (1 test/s)
+    BUG-10 · La búsqueda distingue mayúsculas de minúsculas (US-07) search=login encuentra "Implementar Login" -> f,f,f,f,f
+BUG-11: 5 de 5  (2 test/s)
+    BUG-11 · El listado de tareas no pagina (US-07, Rendimiento 1) limit=5&offset=20 devuelve las tareas 21 a 25 -> f,f,f,f,f
+    BUG-11 · El listado de tareas no pagina (US-07, Rendimiento 1) sin parámetros devuelve 20 tareas y total 25 -> f,f,f,f,f
+BUG-12: 5 de 5  (1 test/s)
+    BUG-12 · Al crear una tarea se aceptan campos que no se deberían (US-05) el estado inicial es TODO aunque la solicitud mande status DONE -> f,f,f,f,f
+BUG-13: 5 de 5  (1 test/s)
+    BUG-13 · Los comentarios vienen del más nuevo al más viejo (US-08) se devuelven en orden cronológico ascendente -> f,f,f,f,f
+BUG-14: 5 de 5  (1 test/s)
+    BUG-14 · forgot-password revela si el email existe (US-17, Seguridad 3) responde 200 con el mismo cuerpo exista o no la cuenta -> f,f,f,f,f
+BUG-15: 5 de 5  (3 test/s)
+    BUG-15 · reset-password acepta tokens usados, invalidados o vencidos (US-17) al pedir un token nuevo, el anterior queda invalidado (400) -> f,f,f,f,f
+    BUG-15 · reset-password acepta tokens usados, invalidados o vencidos (US-17) un token generado hace 61 minutos no sirve (400) -> f,f,f,f,f
+    BUG-15 · reset-password acepta tokens usados, invalidados o vencidos (US-17) un token ya utilizado no se puede reutilizar (400) -> f,f,f,f,f
+BUG-16: 5 de 5  (1 test/s)
+    BUG-16 · El contador de intentos fallidos no se reinicia tras un login exitoso (US-02) 3 fallos + login ok + 3 fallos no bloquean la cuenta -> f,f,f,f,f
+BUG-17: 5 de 5  (3 test/s)
+    BUG-17 · Las etiquetas no se normalizan y se duplican (US-15) "BUG" y "bug" son la misma etiqueta -> f,f,f,f,f
+    BUG-17 · Las etiquetas no se normalizan y se duplican (US-15) agregar la misma etiqueta dos veces responde 200 y no la duplica -> f,f,f,f,f
+    BUG-17 · Las etiquetas no se normalizan y se duplican (US-15) se guardan en minúsculas y sin espacios -> f,f,f,f,f
+BUG-18: 0 de 5  (1 test/s)
+    Proyectos rechaza nombres cortos y acepta el minimo luego de quitar espacios -> p,p,p,p,p
+BUG-19: 5 de 5  (1 test/s)
+    BUG-19 · Un miembro ve los proyectos archivados (US-04) un proyecto archivado no aparece aunque el usuario sea miembro -> f,f,f,f,f
+BUG-20: 5 de 5  (1 test/s)
+    BUG-20 · Eliminar un proyecto deja comentarios e historial huérfanos (US-10) no queda ningún comentario ni historial de las tareas del proyecto -> f,f,f,f,f

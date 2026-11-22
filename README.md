@@ -286,7 +286,8 @@ taskflow/
 
 | Documento | Contenido |
 |---|---|
-| [`bugs.md`](docs/bugs.md) | Reporte de bugs (BUG-01 a BUG-22) con estado y tests |
+| [`bugs.md`](docs/bugs.md) | Reporte de bugs (BUG-01 a BUG-22) con estado, tests, reproducibilidad medida y evidencia |
+| [`taller-refinamiento.md`](docs/taller-refinamiento.md) | Taller de refinamiento (Clase 2): la épica C "Organización del trabajo" en 6 historias con INVEST, criterios, Gherkin y trazabilidad a la spec y a los tests |
 | [`issues/`](docs/issues/) | Issues en formato de plantilla (ISSUE-01 a ISSUE-18), cargados en GitHub como [#2 a #19](https://github.com/joaquinbauza/taskflow_2026_s2/issues) con etiqueta de severidad (`critica`, `alta`, `media`, `baja`); ISSUE-NN es el #NN+1 |
 | [`adr/ADR-001-…`](docs/adr/ADR-001-arquitectura-testing-playwright.md) | Arquitectura del framework de Playwright |
 | [`e2e-us-12-14-15-16.md`](docs/e2e-us-12-14-15-16.md) | Trazabilidad y mutaciones de los E2E de US-12/14/15/16 |
@@ -295,7 +296,7 @@ taskflow/
 | [`performance.md`](docs/performance.md) | k6, seed grande, resultados e hipótesis |
 | [`clase12-ej1b-pipeline.md`](docs/clase12-ej1b-pipeline.md) | Clasificación del pipeline en rojo |
 | [`clase12-ej2-ia.md`](docs/clase12-ej2-ia.md) · [`ia/`](docs/ia/) | Tests de US-16 generados con IA, prompts y clasificación |
-| [`clase12-ej3-informe.md`](docs/clase12-ej3-informe.md) | Informe de estado de una página y recomendación de liberación |
+| [`clase12-ej3-informe.md`](docs/clase12-ej3-informe.md) · [`clase12-ej3-detalle.md`](docs/clase12-ej3-detalle.md) | Informe de estado de una página (métricas y recomendación) y su anexo con criterios de salida, defectos por severidad y riesgos |
 | [`evidencias/`](docs/evidencias/) | Salidas de Pact, axe, npm audit, curl de seguridad y performance |
 
 ## Especificación

@@ -1,0 +1,39 @@
+# BUG-03 y BUG-17 · Reproducibilidad de los E2E con test.fail · 2026-11-22 16:38 -0300
+# Comando: npx playwright test us-15 us-16 -g "BUG-" --repeat-each 5 --reporter=list
+# Entorno: Windows 11 Pro, Node 22.23.5, Chromium 131 (Playwright 1.49.1), navegador y API en America/Montevideo, commit 9ae2b1f
+# test.fail: el reporter list marca con 'x' el test que FALLA como se esperaba (bug reproducido) y lo cuenta como passed. Un bug arreglado aparecería como failed.
+
+Environment variables loaded from .env
+Running 30 tests using 1 worker
+  x  1 [chromium] › e2e\us-15-etiquetas.spec.ts:24:7 › US-15 · Etiquetar tareas › US-15 c1 · BUG-17: "  Backend " se guarda normalizada como "backend" (6.7s)
+  x  2 [chromium] › e2e\us-15-etiquetas.spec.ts:37:7 › US-15 · Etiquetar tareas › US-15 c2 · BUG-17: "BUG" es la misma etiqueta que "bug" y no se agrega otra (5.9s)
+  x  3 [chromium] › e2e\us-15-etiquetas.spec.ts:52:7 › US-15 · Etiquetar tareas › US-15 c3 · BUG-17: volver a agregar "bug" responde 200 y no la duplica (626ms)
+  x  4 [chromium] › e2e\us-16-vencimiento.spec.ts:15:7 › US-16 · Fecha de vencimiento › US-16 c3 · BUG-03: la fecha cargada (2026-09-15) se muestra igual en UTC-3 (5.9s)
+  x  5 [chromium] › e2e\us-16-vencimiento.spec.ts:31:7 › US-16 · Fecha de vencimiento › US-16 c2 · BUG-03: el tablero muestra la fecha en formato ISO igual a la cargada (5.7s)
+  x  6 [chromium] › e2e\us-16-vencimiento.spec.ts:87:7 › US-16 · Fecha de vencimiento › US-16 c7 · BUG-03: la fecha pasada se devuelve igual a la cargada (544ms)
+  x  7 [chromium] › e2e\us-15-etiquetas.spec.ts:24:7 › US-15 · Etiquetar tareas › US-15 c1 · BUG-17: "  Backend " se guarda normalizada como "backend" (6.0s)
+  x  8 [chromium] › e2e\us-15-etiquetas.spec.ts:37:7 › US-15 · Etiquetar tareas › US-15 c2 · BUG-17: "BUG" es la misma etiqueta que "bug" y no se agrega otra (5.9s)
+  x  9 [chromium] › e2e\us-15-etiquetas.spec.ts:52:7 › US-15 · Etiquetar tareas › US-15 c3 · BUG-17: volver a agregar "bug" responde 200 y no la duplica (551ms)
+  x  10 [chromium] › e2e\us-16-vencimiento.spec.ts:15:7 › US-16 · Fecha de vencimiento › US-16 c3 · BUG-03: la fecha cargada (2026-09-15) se muestra igual en UTC-3 (5.9s)
+  x  11 [chromium] › e2e\us-16-vencimiento.spec.ts:31:7 › US-16 · Fecha de vencimiento › US-16 c2 · BUG-03: el tablero muestra la fecha en formato ISO igual a la cargada (5.7s)
+  x  12 [chromium] › e2e\us-16-vencimiento.spec.ts:87:7 › US-16 · Fecha de vencimiento › US-16 c7 · BUG-03: la fecha pasada se devuelve igual a la cargada (541ms)
+  x  13 [chromium] › e2e\us-15-etiquetas.spec.ts:24:7 › US-15 · Etiquetar tareas › US-15 c1 · BUG-17: "  Backend " se guarda normalizada como "backend" (6.0s)
+  x  14 [chromium] › e2e\us-15-etiquetas.spec.ts:37:7 › US-15 · Etiquetar tareas › US-15 c2 · BUG-17: "BUG" es la misma etiqueta que "bug" y no se agrega otra (5.9s)
+  x  15 [chromium] › e2e\us-15-etiquetas.spec.ts:52:7 › US-15 · Etiquetar tareas › US-15 c3 · BUG-17: volver a agregar "bug" responde 200 y no la duplica (571ms)
+  x  16 [chromium] › e2e\us-16-vencimiento.spec.ts:15:7 › US-16 · Fecha de vencimiento › US-16 c3 · BUG-03: la fecha cargada (2026-09-15) se muestra igual en UTC-3 (5.9s)
+  x  17 [chromium] › e2e\us-16-vencimiento.spec.ts:31:7 › US-16 · Fecha de vencimiento › US-16 c2 · BUG-03: el tablero muestra la fecha en formato ISO igual a la cargada (5.7s)
+  x  18 [chromium] › e2e\us-16-vencimiento.spec.ts:87:7 › US-16 · Fecha de vencimiento › US-16 c7 · BUG-03: la fecha pasada se devuelve igual a la cargada (558ms)
+  x  19 [chromium] › e2e\us-15-etiquetas.spec.ts:24:7 › US-15 · Etiquetar tareas › US-15 c1 · BUG-17: "  Backend " se guarda normalizada como "backend" (6.0s)
+  x  20 [chromium] › e2e\us-15-etiquetas.spec.ts:37:7 › US-15 · Etiquetar tareas › US-15 c2 · BUG-17: "BUG" es la misma etiqueta que "bug" y no se agrega otra (5.9s)
+  x  21 [chromium] › e2e\us-15-etiquetas.spec.ts:52:7 › US-15 · Etiquetar tareas › US-15 c3 · BUG-17: volver a agregar "bug" responde 200 y no la duplica (551ms)
+  x  22 [chromium] › e2e\us-16-vencimiento.spec.ts:15:7 › US-16 · Fecha de vencimiento › US-16 c3 · BUG-03: la fecha cargada (2026-09-15) se muestra igual en UTC-3 (5.9s)
+  x  23 [chromium] › e2e\us-16-vencimiento.spec.ts:31:7 › US-16 · Fecha de vencimiento › US-16 c2 · BUG-03: el tablero muestra la fecha en formato ISO igual a la cargada (5.8s)
+  x  24 [chromium] › e2e\us-16-vencimiento.spec.ts:87:7 › US-16 · Fecha de vencimiento › US-16 c7 · BUG-03: la fecha pasada se devuelve igual a la cargada (536ms)
+  x  25 [chromium] › e2e\us-15-etiquetas.spec.ts:24:7 › US-15 · Etiquetar tareas › US-15 c1 · BUG-17: "  Backend " se guarda normalizada como "backend" (6.0s)
+  x  26 [chromium] › e2e\us-15-etiquetas.spec.ts:37:7 › US-15 · Etiquetar tareas › US-15 c2 · BUG-17: "BUG" es la misma etiqueta que "bug" y no se agrega otra (5.9s)
+  x  27 [chromium] › e2e\us-15-etiquetas.spec.ts:52:7 › US-15 · Etiquetar tareas › US-15 c3 · BUG-17: volver a agregar "bug" responde 200 y no la duplica (552ms)
+  x  28 [chromium] › e2e\us-16-vencimiento.spec.ts:15:7 › US-16 · Fecha de vencimiento › US-16 c3 · BUG-03: la fecha cargada (2026-09-15) se muestra igual en UTC-3 (5.9s)
+  x  29 [chromium] › e2e\us-16-vencimiento.spec.ts:31:7 › US-16 · Fecha de vencimiento › US-16 c2 · BUG-03: el tablero muestra la fecha en formato ISO igual a la cargada (5.7s)
+  x  30 [chromium] › e2e\us-16-vencimiento.spec.ts:87:7 › US-16 · Fecha de vencimiento › US-16 c7 · BUG-03: la fecha pasada se devuelve igual a la cargada (533ms)
+  30 passed (2.3m)
+Resultado: BUG-17 (3 tests) y BUG-03 (3 tests) se reproducen en 5 de 5 corridas cada uno: 30 de 30 ejecuciones como falla esperada.
