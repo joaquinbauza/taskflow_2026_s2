@@ -6,6 +6,17 @@ import { toPublicId } from '../../lib/ids';
 import { signToken } from '../../middleware/auth';
 import { assertEmail, assertPassword, normalizeEmail } from '../../lib/validation';
 
+/** Costo de bcrypt (2^10 rondas) para los hashes de contraseña. */
+const PASSWORD_HASH_ROUNDS = 10;
+/** Fallos de login seguidos que bloquean la cuenta (US-02 c4). */
+const MAX_LOGIN_ATTEMPTS = 5;
+/** Duración del bloqueo de cuenta: 15 minutos (US-02 c4). */
+const ACCOUNT_LOCK_DURATION_MS = 15 * 60 * 1000;
+/** Bytes aleatorios del token de reseteo (se devuelve como 48 caracteres hex). */
+const RESET_TOKEN_BYTES = 24;
+/** Vigencia del token de reseteo: 60 minutos (US-17 c4). */
+const RESET_TOKEN_DURATION_MS = 60 * 60 * 1000;
+
 export interface PublicUser {
   id: string;
   email: string;
@@ -36,7 +47,7 @@ export async function register(body: Record<string, unknown>) {
   if (existing) throw conflict('Email already registered');
 
   const user = await db.user.create({
-    data: { email, passwordHash: await bcrypt.hash(password, 10), name },
+    data: { email, passwordHash: await bcrypt.hash(password, PASSWORD_HASH_ROUNDS), name },
   });
 
   return {
@@ -60,8 +71,8 @@ export async function login(body: Record<string, unknown>) {
   if (!ok) {
     const attempts = user.failedAttempts + 1;
     const data: { failedAttempts: number; lockedUntil?: Date } = { failedAttempts: attempts };
-    if (attempts >= 5) {
-      data.lockedUntil = new Date(Date.now() + 15 * 60 * 1000);
+    if (attempts >= MAX_LOGIN_ATTEMPTS) {
+      data.lockedUntil = new Date(Date.now() + ACCOUNT_LOCK_DURATION_MS);
     }
     await db.user.update({ where: { id: user.id }, data });
     throw unauthorized('Invalid credentials');
@@ -88,12 +99,12 @@ export async function forgotPassword(body: Record<string, unknown>) {
     data: { usedAt: new Date() },
   });
 
-  const token = crypto.randomBytes(24).toString('hex');
+  const token = crypto.randomBytes(RESET_TOKEN_BYTES).toString('hex');
   await db.passwordResetToken.create({
     data: {
       userId: user.id,
       token,
-      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+      expiresAt: new Date(Date.now() + RESET_TOKEN_DURATION_MS),
     },
   });
 
@@ -111,7 +122,7 @@ export async function resetPassword(body: Record<string, unknown>) {
   await db.user.update({
     where: { id: record.userId },
     data: {
-      passwordHash: await bcrypt.hash(newPassword, 10),
+      passwordHash: await bcrypt.hash(newPassword, PASSWORD_HASH_ROUNDS),
       failedAttempts: 0,
       lockedUntil: null,
     },

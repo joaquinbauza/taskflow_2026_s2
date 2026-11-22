@@ -4,6 +4,26 @@ import { badRequest, conflict, forbidden, notFound } from '../../lib/http';
 import { parsePublicId, toPublicId } from '../../lib/ids';
 import { assertEmail, assertOptionalString } from '../../lib/validation';
 
+const PROJECT_NAME_MIN_LENGTH = 3;
+const PROJECT_NAME_MAX_LENGTH = 100;
+const PROJECT_DESCRIPTION_MAX_LENGTH = 500;
+
+/**
+ * Valida y normaliza el nombre de proyecto (US-03 c1), igual en create y update.
+ * Un valor que no es string se trata como vacío: responde el mismo mensaje de
+ * longitud (no "name is required", como haría assertString), que es el
+ * comportamiento fijado por project-name.characterization.test.ts.
+ */
+function validateProjectName(value: unknown): string {
+  const name = typeof value === 'string' ? value.trim() : '';
+  if (name.length < PROJECT_NAME_MIN_LENGTH || name.length > PROJECT_NAME_MAX_LENGTH) {
+    throw badRequest(
+      `name must be between ${PROJECT_NAME_MIN_LENGTH} and ${PROJECT_NAME_MAX_LENGTH} characters`,
+    );
+  }
+  return name;
+}
+
 function serialize(p: {
   id: number;
   name: string;
@@ -25,11 +45,12 @@ function serialize(p: {
 export async function create(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const userId = req.user!.userId;
-    const name = typeof req.body?.name === 'string' ? req.body.name.trim() : '';
-    if (name.length < 3 || name.length > 100) {
-      throw badRequest('name must be between 3 and 100 characters');
-    }
-    const description = assertOptionalString(req.body?.description, 'description', 500);
+    const name = validateProjectName(req.body?.name);
+    const description = assertOptionalString(
+      req.body?.description,
+      'description',
+      PROJECT_DESCRIPTION_MAX_LENGTH,
+    );
 
     const duplicate = await db.project.findFirst({ where: { ownerId: userId, name } });
     if (duplicate) throw conflict('You already have a project with that name');
@@ -84,10 +105,7 @@ export async function update(req: Request, res: Response, next: NextFunction): P
     const data: { name?: string; description?: string | null } = {};
 
     if (req.body?.name !== undefined) {
-      const name = typeof req.body.name === 'string' ? req.body.name.trim() : '';
-      if (name.length < 3 || name.length > 100) {
-        throw badRequest('name must be between 3 and 100 characters');
-      }
+      const name = validateProjectName(req.body.name);
       const duplicate = await db.project.findFirst({
         where: { ownerId: userId, name, id: { not: id } },
       });
@@ -96,7 +114,8 @@ export async function update(req: Request, res: Response, next: NextFunction): P
     }
 
     if (req.body?.description !== undefined) {
-      data.description = assertOptionalString(req.body.description, 'description', 500) ?? null;
+      data.description =
+        assertOptionalString(req.body.description, 'description', PROJECT_DESCRIPTION_MAX_LENGTH) ?? null;
     }
 
     res.json(serialize(await db.project.update({ where: { id }, data })));
